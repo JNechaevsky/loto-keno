@@ -52,8 +52,9 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 int score = 10;
+int maxScore = 10; // [PN] Начальное значение соответствует стартовому счёту
 int bet = 1; // Запоминаем последнюю ставку
-int lap = 0; // [JN] Means "round", but it's C reserved word.
+int rounds = 0; // [JN] Means "round", but it's C reserved word.
 int choice = 0; // 1 = Будь-будь-будь, 2 = А-ООО!
 int samuraiAppeared = 0; // Был ли самурай в этом раунде
 int gameOver = 0; // Флаг окончания игры
@@ -68,6 +69,9 @@ SDL_Color magenta = { 170,   0, 170, 255 };
 // Extra CGA color
 SDL_Color gray    = {  85,  85,  85, 255 };
 SDL_Color yellow  = { 255, 255,  85, 255 };
+SDL_Color blue    = {   0,   0, 170, 255 };
+SDL_Color red     = { 170,   0,   0, 255 };
+
 
 
 
@@ -153,7 +157,7 @@ void G_StartNewRound (void)
     // [PN] Clear bet's choice
     choice = 0;
     // [JN] Increment round counter.
-    lap++;
+    rounds++;
 }
 
 // -----------------------------------------------------------------------------
@@ -170,6 +174,11 @@ void G_DetermineResult (void)
     if (win)
     {
         score += bet * (samuraiAppeared ? 2 : 1);
+        // [PN] Обновляем maxScore, если score стал больше него:
+        if (score > maxScore)
+        {
+            maxScore = score;
+        }
     }
     else
     {
@@ -270,8 +279,23 @@ void D_DrawHelpScreen (void)
 
 void D_DrawGameOverScreen (void)
 {
-    R_DrawTextCentered("ЛОТО КЕНО ЗАКОНЧЕНО", 176, white);
-    R_DrawTextCentered("Нажмите ENTER для перезапуска", 208, cyan);
+    R_DrawTextCentered("ЛОТО КЕНО ЗАКОНЧЕНО", 160, white);
+
+    // [PN] Русский язык — тот ещё монстр склонений, поэтому нужно учитывать
+    // числа 11–14, 111–114 и т.д., чтобы не получилось ошибок.
+    char gameOverText[64];
+    const int lastTwoDigits = rounds % 100;
+    const int lastDigit = rounds % 10;
+
+    sprintf(gameOverText, "Максимальный счёт: %d (%d %s)", maxScore, rounds,
+           (lastTwoDigits >= 11 && lastTwoDigits <= 14) ? "раундов" :
+           (lastDigit == 1) ? "раунд" :
+           (lastDigit >= 2 && lastDigit <= 4) ? "раунда" :
+           "раундов");
+
+    R_DrawTextCentered(gameOverText, 192, white);
+
+    R_DrawTextCentered("Нажмите ENTER для перезапуска", 240, cyan);
 }
 
 // -----------------------------------------------------------------------------
@@ -300,7 +324,7 @@ void D_DrawGameField (void)
     R_DrawText(betText, 224, 80, white);
 
     char roundText[32];
-    sprintf(roundText, "Раунд: %d", lap);
+    sprintf(roundText, "Раунд: %d", rounds);
     R_DrawText(roundText, 240, 112, white);
 
 
@@ -382,9 +406,9 @@ void D_KenoLoop (void)
                     {
                         if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER)
                         {
-                            score = 10;
+                            score = maxScore = 10;
                             bet = 1;
-                            lap = 0;
+                            rounds = 0;
                             gameOver = 0;
                             G_StartNewRound();
                         }
@@ -415,9 +439,9 @@ void D_KenoLoop (void)
                         if (event.key.keysym.sym == SDLK_ESCAPE)
                         {
                             gameStarted = 0;
-                            score = 10;
+                            score = maxScore = 10;
                             bet = 1;
-                            lap = 0;
+                            rounds = 0;
                             gameOver = 0;
                         }
                     }
