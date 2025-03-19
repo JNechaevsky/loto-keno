@@ -310,67 +310,72 @@ void D_KenoLoop (void)
         {
             if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE)
             {
-                if (gameHelp)
-                {
-                    gameHelp = 0;
-                }
-                else
-                {
-                    running = 0;
-                    return;
-                }
+                running = 0;
+                return;
             }
-
-            if (event.key.keysym.sym == SDLK_F1 && !gameHelp)
-            {
-                gameHelp = 1;
-            }
-
 
             if (event.type == SDL_KEYDOWN)
             {
-                if (gameHelp)
+                // [JN] Help screen can be invoked in any game state.
+                // Not in help screen? Open it. Otherwise, close it.
+                if (event.key.keysym.sym == SDLK_F1)
                 {
-                    gameHelp = 0;
-                    continue;
-                }
-                
-                if (!gameStarted)
-                {
-                    gameStarted = 1;
-                    G_StartNewRound();
-                }
-                else if (gameOver)
-                {
-                    if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER)
-                    {
-                        score = 10;
-                        bet = 1;
-                        gameOver = 0;
-                        G_StartNewRound();
-                    }
+                    gameHelp ^= 1;
                 }
                 else
                 {
-                    if (event.key.keysym.sym == SDLK_UP && bet < score)
+                    // [JN] Put away help screen by pressing any key.
+                    if (gameHelp)
                     {
-                        bet++;
+                        gameHelp = 0;
+                        continue;
                     }
-                    if (event.key.keysym.sym == SDLK_DOWN && bet > 1)
+                    
+                    if (!gameStarted)
                     {
-                        bet--;
+                        gameStarted = 1;
+                        G_StartNewRound();
                     }
-                    if (event.key.keysym.sym == SDLK_LEFT && bet > 0)
+                    else if (gameOver)
                     {
-                        choice = 1;
+                        if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER)
+                        {
+                            score = 10;
+                            bet = 1;
+                            gameOver = 0;
+                            G_StartNewRound();
+                        }
                     }
-                    if (event.key.keysym.sym == SDLK_RIGHT && bet > 0)
+                    else
                     {
-                        choice = 2;
-                    }
-                    if ((event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER) && choice > 0)
-                    {
-                        G_DetermineResult();
+                        if (event.key.keysym.sym == SDLK_UP && bet < score)
+                        {
+                            bet++;
+                        }
+                        if (event.key.keysym.sym == SDLK_DOWN && bet > 1)
+                        {
+                            bet--;
+                        }
+                        if (event.key.keysym.sym == SDLK_LEFT && bet > 0)
+                        {
+                            choice = 1;
+                        }
+                        if (event.key.keysym.sym == SDLK_RIGHT && bet > 0)
+                        {
+                            choice = 2;
+                        }
+                        if ((event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER) && choice > 0)
+                        {
+                            G_DetermineResult();
+                        }
+                        // [JN] Quit to title screen by pressing ESC.
+                        if (event.key.keysym.sym == SDLK_ESCAPE)
+                        {
+                            gameStarted = 0;
+                            score = 10;
+                            bet = 1;
+                            gameOver = 0;
+                        }
                     }
                 }
             }
