@@ -38,6 +38,8 @@
 #include <string.h>
 #include <time.h>
 
+#include "font.c"
+
 
 // Window size, representing CGA 320x200 mode (2x)
 #define SCREENWIDTH     640
@@ -515,7 +517,10 @@ int main (int argc, char *argv[])
 
     window = SDL_CreateWindow("Лото Кено!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-    font = TTF_OpenFont("IBM_VGA_8x8.ttf", FONT_SIZE);
+    
+    // [PN] Загрузка шрифта, встроенного в код (font.c)
+    SDL_RWops *rw = SDL_RWFromMem(ibm_vga_data, ibm_vga_data_len);
+    font = TTF_OpenFontRW(rw, 0, FONT_SIZE);
 
     // [PN] Выбор цитаты при запуске игры
     randomQuote = D_GetRandomQuote();
