@@ -53,11 +53,21 @@ SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 int score = 10;
 int bet = 1; // Запоминаем последнюю ставку
+int lap = 0; // [JN] Means "round", but it's C reserved word.
 int choice = 0; // 1 = Будь-будь-будь, 2 = А-ООО!
 int samuraiAppeared = 0; // Был ли самурай в этом раунде
 int gameOver = 0; // Флаг окончания игры
 int gameStarted = 0; // Флаг начала игры
 int gameHelp = 0; // [JN] Are we in help screen?
+
+// Standard CGA colors 
+SDL_Color white   = { 255, 255, 255, 255 };
+SDL_Color black   = {   0,   0,   0, 255 };
+SDL_Color cyan    = {   0, 170, 170, 255 };
+SDL_Color magenta = { 170,   0, 170, 255 };
+// Extra CGA color
+SDL_Color gray    = {  85,  85,  85, 255 };
+SDL_Color yellow  = { 255, 255,  85, 255 };
 
 
 
@@ -96,12 +106,7 @@ SDL_Color yellow = {255, 255, 85, 255};
 5555555555555555555555555555555555555555    384
 */
 
-SDL_Color white   = {255, 255, 255, 255};
-SDL_Color black   = {  0,   0,   0, 255};
-SDL_Color cyan    = {  0, 170, 170, 255};
-SDL_Color magenta = {170,   0, 170, 255};
 
-SDL_Color yellow  = {255, 255, 85, 255};
 
 
 // -----------------------------------------------------------------------------
@@ -147,6 +152,8 @@ void G_StartNewRound (void)
     samuraiAppeared = (rand() % SAMURAI_CHANCE == 0);
     // [PN] Clear bet's choice
     choice = 0;
+    // [JN] Increment round counter.
+    lap++;
 }
 
 // -----------------------------------------------------------------------------
@@ -274,23 +281,58 @@ void D_DrawGameOverScreen (void)
 
 void D_DrawGameField (void)
 {
-    R_DrawText("Будь-будь-будь!", 50, 192, choice == 1 ? white : magenta);
-    R_DrawText("А-ООО-Ооо!", 384, 192, choice == 2 ? white : magenta);
+    R_DrawTextCentered("╔══════════════════════╗",  16, white);
+    R_DrawTextCentered("║                      ║",  32, white);
+    R_DrawTextCentered("║                      ║",  48, white);
+    R_DrawTextCentered("║                      ║",  64, white);
+    R_DrawTextCentered("║                      ║",  80, white);
+    R_DrawTextCentered("║                      ║",  96, white);
+    R_DrawTextCentered("║                      ║", 112, white);
+    R_DrawTextCentered("║                      ║", 128, white);
+    R_DrawTextCentered("╚══════════════════════╝", 144, white);
 
     char scoreText[32];
     sprintf(scoreText, "Очки: %d", score);
-    R_DrawText(scoreText, 240, 20, white);
+    R_DrawText(scoreText, 256, 48, white);
 
     char betText[32];
     sprintf(betText, "Ставка: %d", bet);
-    R_DrawText(betText, 208, 50, white);
+    R_DrawText(betText, 224, 80, white);
+
+    char roundText[32];
+    sprintf(roundText, "Раунд: %d", lap);
+    R_DrawText(roundText, 240, 112, white);
+
+
+    const SDL_Color left_color = (choice == 1 ? white : magenta);
+    R_DrawText("┌─────────────────┐", 16, 176, left_color);
+    R_DrawText("│                 │", 16, 192, left_color);
+    R_DrawText("│                 │", 16, 208, left_color);
+    R_DrawText("│                 │", 16, 224, left_color);
+    R_DrawText("└─────────────────┘", 16, 240, left_color);
+
+    R_DrawText("Будь-будь-будь!", 48, 208, left_color);
+
+    const SDL_Color right_color = (choice == 2 ? white : magenta);
+    R_DrawText("┌────────────────┐", 336, 176, right_color);
+    R_DrawText("│                │", 336, 192, right_color);
+    R_DrawText("│                │", 336, 208, right_color);
+    R_DrawText("│                │", 336, 224, right_color);
+    R_DrawText("└────────────────┘", 336, 240, right_color);
+
+    R_DrawText("А-ОООО-ООО-Оо!", 368, 208, right_color);
 
     if (samuraiAppeared)
     {
-        R_DrawTextCentered("╔══════════╗", 336, yellow);
-        R_DrawTextCentered("║   ХНА!   ║", 352, yellow);
-        R_DrawTextCentered("╚══════════╝", 368, yellow);
+        R_DrawTextCentered("╔══════════╗", 272, yellow);
+        R_DrawTextCentered("║          ║", 288, yellow);
+        R_DrawTextCentered("║   ХНА!   ║", 304, yellow);
+        R_DrawTextCentered("║          ║", 320, yellow);
+        R_DrawTextCentered("╚══════════╝", 336, yellow);
     }
+
+    // [JN] TODO - Win/Loose string?
+    R_DrawTextCentered("Какой-нибудь текст", 368, gray);
 }
 
 // -----------------------------------------------------------------------------
@@ -342,6 +384,7 @@ void D_KenoLoop (void)
                         {
                             score = 10;
                             bet = 1;
+                            lap = 0;
                             gameOver = 0;
                             G_StartNewRound();
                         }
@@ -374,6 +417,7 @@ void D_KenoLoop (void)
                             gameStarted = 0;
                             score = 10;
                             bet = 1;
+                            lap = 0;
                             gameOver = 0;
                         }
                     }
