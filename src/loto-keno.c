@@ -193,15 +193,33 @@ void G_DetermineResult (void)
 
 void D_DrawTitleScreen (void)
 {
+    R_DrawTextCentered("╔══════════════════════╗", 16, white);
+    R_DrawTextCentered("║                      ║", 32, white);
+    R_DrawTextCentered("║      Лото Кено!      ║", 48, white);
+    R_DrawTextCentered("║                      ║", 64, white);
+    R_DrawTextCentered("╚══════════════════════╝", 80, white);
+
+    R_DrawTextCentered("Версия 1.0 (18.03.2025)", 112, magenta);
+
+    R_DrawTextCentered("Разработка и идея:", 160, white);
+    R_DrawTextCentered("Полина \"Аура\" Н. ♥ Юлия Нечаевская", 192, magenta);
+
+    R_DrawTextCentered("F1 - Помощь и правила", 240, white);
+
+/*
     R_DrawTextCentered("Лото Кено!", 16, white);
     R_DrawTextCentered("Версия 1.0 (18.03.2025)", 48, magenta);
     R_DrawTextCentered("Разработка и идея:", 96, white);
     R_DrawTextCentered("Полина \"Аура\" Н. ♥ Юлия Нечаевская", 128, magenta);
-    R_DrawTextCentered("Управление:", 176, white);
-    R_DrawTextCentered("← Будь-будь-будь!", 208, magenta);
-    R_DrawTextCentered("→ А-ООО!", 240, magenta);
-    R_DrawTextCentered("↑ / ↓ Изменить ставку", 272, magenta);
-    R_DrawTextCentered("ENTER — выбор", 304, magenta);
+    
+    R_DrawTextCentered("F1 — помощь и правила", 208, magenta);
+    // R_DrawTextCentered("Управление:", 176, white);
+    // R_DrawTextCentered("← Будь-будь-будь!", 208, magenta);
+    // R_DrawTextCentered("→ А-ООО!", 240, magenta);
+    // R_DrawTextCentered("↑ / ↓ Изменить ставку", 272, magenta);
+    // R_DrawTextCentered("ENTER — выбор", 304, magenta);
+*/
+
     R_DrawTextCentered("Нажмите любую клавишу...", 352, white);
 }
 
@@ -257,7 +275,7 @@ void D_DrawGameOverScreen (void)
 void D_DrawGameField (void)
 {
     R_DrawText("Будь-будь-будь!", 50, 192, choice == 1 ? white : magenta);
-    R_DrawText("А-ООО!", 432, 192, choice == 2 ? white : magenta);
+    R_DrawText("А-ООО-Ооо!", 384, 192, choice == 2 ? white : magenta);
 
     char scoreText[32];
     sprintf(scoreText, "Очки: %d", score);
@@ -292,14 +310,20 @@ void D_KenoLoop (void)
         {
             if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE)
             {
-                running = 0;
-                return;
+                if (gameHelp)
+                {
+                    gameHelp = 0;
+                }
+                else
+                {
+                    running = 0;
+                    return;
+                }
             }
 
             if (event.key.keysym.sym == SDLK_F1 && !gameHelp)
             {
                 gameHelp = 1;
-                continue;
             }
 
 
