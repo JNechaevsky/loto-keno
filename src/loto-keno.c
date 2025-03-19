@@ -167,9 +167,9 @@ void G_StartNewRound (void)
 
 void G_DetermineResult (void)
 {
-    int randomNumber = rand() % 100; // [PN] Число от 0 до 99
-    int isEven = (randomNumber % 2 == 0);
-    int win = (choice == 1 && isEven) || (choice == 2 && !isEven);
+    const int randomNumber = rand() % 100; // [PN] Число от 0 до 99
+    const int isEven = (randomNumber % 2 == 0);
+    const int win = (choice == 1 && isEven) || (choice == 2 && !isEven);
     
     if (win)
     {
@@ -203,6 +203,30 @@ void G_DetermineResult (void)
 
 
 // -----------------------------------------------------------------------------
+// D_GetRandomQuote
+//  Возвращает случайную цитату из списка.
+// -----------------------------------------------------------------------------
+
+const char *randomQuote = NULL;
+
+const char* D_GetRandomQuote (void)
+{
+    static const char *quotes[] = {
+        "Шанс на самурая? 1 к 10. Проверь удачу!",
+        "Будь-будь-будь... А-ОООО-ООО-Оо!?",
+        "Азарт — это не игра, а стиль жизни!",
+        "Надейся на удачу, но ставь с умом!",
+        "Каждый раунд — шанс стать чемпионом!",
+        "ХНА!™ Одобрено самураями.",
+        "Если ты проиграл — попробуй ещё раз!",
+        "CGA. 4 цвета. 1 победитель."
+    };
+
+    const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
+    return quotes[rand() % totalQuotes];
+}
+
+// -----------------------------------------------------------------------------
 // D_DrawTitleScreen
 //  Draw title screen.
 // -----------------------------------------------------------------------------
@@ -216,27 +240,14 @@ void D_DrawTitleScreen (void)
     R_DrawTextCentered("╚══════════════════════╝", 80, white);
 
     R_DrawTextCentered("Версия 1.0 (18.03.2025)", 112, magenta);
+    R_DrawTextCentered(randomQuote, 144, magenta);
 
-    R_DrawTextCentered("Разработка и идея:", 160, white);
-    R_DrawTextCentered("Полина \"Аура\" Н. ♥ Юлия Нечаевская", 192, magenta);
+    R_DrawTextCentered("Разработка и идея:", 192, white);
+    R_DrawTextCentered("Полина \"Аура\" Н. ♥ Юлия Нечаевская", 224, magenta);
 
-    R_DrawTextCentered("F1 - Помощь и правила", 240, white);
+    R_DrawTextCentered("F1 - Помощь и правила", 288, white);
 
-/*
-    R_DrawTextCentered("Лото Кено!", 16, white);
-    R_DrawTextCentered("Версия 1.0 (18.03.2025)", 48, magenta);
-    R_DrawTextCentered("Разработка и идея:", 96, white);
-    R_DrawTextCentered("Полина \"Аура\" Н. ♥ Юлия Нечаевская", 128, magenta);
-    
-    R_DrawTextCentered("F1 — помощь и правила", 208, magenta);
-    // R_DrawTextCentered("Управление:", 176, white);
-    // R_DrawTextCentered("← Будь-будь-будь!", 208, magenta);
-    // R_DrawTextCentered("→ А-ООО!", 240, magenta);
-    // R_DrawTextCentered("↑ / ↓ Изменить ставку", 272, magenta);
-    // R_DrawTextCentered("ENTER — выбор", 304, magenta);
-*/
-
-    R_DrawTextCentered("Нажмите любую клавишу...", 352, white);
+    R_DrawTextCentered("Нажмите любую клавишу...", 368, white);
 }
 
 // -----------------------------------------------------------------------------
@@ -374,7 +385,7 @@ void D_KenoLoop (void)
     {
         while (SDL_PollEvent(&event))
         {
-            if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE)
+            if (event.type == SDL_QUIT)
             {
                 running = 0;
                 return;
@@ -399,6 +410,13 @@ void D_KenoLoop (void)
                     
                     if (!gameStarted)
                     {
+                        // [PN] Нажатие ESC в главном меню завершает программу
+                        if (event.key.keysym.sym == SDLK_ESCAPE)
+                        {
+                            running = 0;
+                            return;
+                        }
+
                         gameStarted = 1;
                         G_StartNewRound();
                     }
@@ -411,6 +429,7 @@ void D_KenoLoop (void)
                             rounds = 0;
                             gameOver = 0;
                             G_StartNewRound();
+                            randomQuote = D_GetRandomQuote(); // [PN] Обновляем цитату при рестарте!
                         }
                     }
                     else
@@ -443,6 +462,7 @@ void D_KenoLoop (void)
                             bet = 1;
                             rounds = 0;
                             gameOver = 0;
+                            randomQuote = D_GetRandomQuote(); // [PN] Обновляем цитату при возврате в меню
                         }
                     }
                 }
@@ -496,6 +516,9 @@ int main (int argc, char *argv[])
     window = SDL_CreateWindow("Лото Кено!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     font = TTF_OpenFont("IBM_VGA_8x8.ttf", FONT_SIZE);
+
+    // [PN] Выбор цитаты при запуске игры
+    randomQuote = D_GetRandomQuote();
 
     D_KenoLoop();
     
