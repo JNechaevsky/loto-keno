@@ -1,0 +1,24 @@
+IDI_APP_ICON ICON "loto-keno.ico"
+
+1 VERSIONINFO
+FILEVERSION 1,0
+
+FILETYPE 1
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040904E4"
+        {
+            VALUE "FileDescription", "Loto Keno!"
+            VALUE "InternalName", "@PACKAGE_TARNAME@"
+            VALUE "CompanyName", "@PACKAGE_BUGREPORT@"
+            VALUE "LegalCopyright", "PN and JN"
+            VALUE "ProductName", "Loto Keno!"
+            VALUE "ProductVersion", "1.0"
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x409, 1252
+    }
+}
