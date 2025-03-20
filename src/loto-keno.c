@@ -232,6 +232,12 @@ const char *G_GetWinQuote (void)
         "Хььььк!",
         "Ра-та-та-та!",
         "А, ооо-оо-оо!",
+        // [ND]
+        "Роццю!",
+        "Мдао!",
+        "Дяссь!",
+        "Гкуньа!",
+        "Зао-жунь!",
     };
 
     const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
@@ -293,6 +299,12 @@ const char *G_GetLooseQuote (void)
         "П-ф-ф-ф-ф...",
         "Кепочка на бок упала.",
         "Конокрадство!",
+        // [ND]
+        "Трыщ.",
+        "Жжыц.", 
+        "Сёмщ.",
+        "Луфьр.",
+        "Мрякс.",
     };
 
     const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
