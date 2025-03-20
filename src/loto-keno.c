@@ -175,6 +175,7 @@ const char* G_GetRandomQuote (void)
 }
 
 const char *resultQuote = NULL;
+SDL_Color resultColor;
 
 const char *G_GetWinQuote (void)
 {
@@ -239,6 +240,7 @@ void G_DetermineResult (void)
             maxScore = score;
         }
         resultQuote = G_GetWinQuote();
+        resultColor = blue;
     }
     else
     {
@@ -249,6 +251,7 @@ void G_DetermineResult (void)
             bet = score;
         }
         resultQuote = G_GetLooseQuote();
+        resultColor = red;
     }
     
     if (score <= 0)
@@ -409,9 +412,9 @@ void D_DrawGameField (void)
         R_DrawTextCentered("╚══════════╝", 336, yellow);
     }
 
-    // [PN] TODO - раскрашивать победную строчку синим, проигрышную красным?
+    // [JN] TODO - Switch between 4 / 16 colors?
     if (resultQuote)
-    R_DrawTextCentered(resultQuote, 368, gray);
+    R_DrawTextCentered(resultQuote, 368, resultColor);
 }
 
 // -----------------------------------------------------------------------------
