@@ -563,12 +563,20 @@ void D_KenoLoop (void)
             }
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT && !mousePressed)
             {
+                // [PN] Закрываем экран помощи по клику
+                if (gameHelp)
+                {
+                    gameHelp = 0;
+                    continue;
+                }
+
                 mousePressed = 1; // Фиксируем, что кнопка нажата
 
                 if (!gameStarted)
                 {
                     gameStarted = 1;
                     G_StartNewRound();
+                    continue; // [PN] Чтобы сразу не проваливаться дальше
                 }
 
                 if (gameOver)
