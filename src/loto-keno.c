@@ -151,6 +151,60 @@ void R_DrawTextCentered (const char *text, int y, SDL_Color color)
 
 
 // -----------------------------------------------------------------------------
+// G_GetRandomQuote
+//  Возвращает случайную цитату из списка.
+// -----------------------------------------------------------------------------
+
+const char *randomQuote = NULL;
+
+const char* G_GetRandomQuote (void)
+{
+    static const char *quotes[] = {
+        "Шанс на самурая? 1 к 10. Проверь удачу!",
+        "Будь-будь-будь... А-ОООО-ООО-Оо!?",
+        "Азарт — это не игра, а стиль жизни!",
+        "Надейся на удачу, но ставь с умом!",
+        "Каждый раунд — шанс стать чемпионом!",
+        "ХНА!™ Одобрено самураями.",
+        "Если ты проиграл — попробуй ещё раз!",
+        "CGA. 4 цвета. 1 победитель."
+    };
+
+    const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
+    return quotes[rand() % totalQuotes];
+}
+
+const char *resultQuote = NULL;
+
+const char *G_GetWinQuote (void)
+{
+    static const char *quotes[] = {
+        "Ты король удачи!",
+        "Судьба на твоей стороне!",
+        "Джекпот!",
+        "Твой выбор был верным!",
+        "Повезло-повезло!"
+    };
+
+    const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
+    return quotes[rand() % totalQuotes];
+}
+
+const char *G_GetLooseQuote (void)
+{
+    static const char *quotes[] = {
+        "Не повезло, попробуй ещё!",
+        "Сегодня не твой день...",
+        "Ставь снова, всё получится!",
+        "Азарт жесток, но ты сильнее!",
+        "Эх, почти выиграл!"
+    };
+
+    const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
+    return quotes[rand() % totalQuotes];
+}
+
+// -----------------------------------------------------------------------------
 // G_DetermineResult
 //  Start new round.
 // -----------------------------------------------------------------------------
@@ -184,6 +238,7 @@ void G_DetermineResult (void)
         {
             maxScore = score;
         }
+        resultQuote = G_GetWinQuote();
     }
     else
     {
@@ -193,6 +248,7 @@ void G_DetermineResult (void)
         {
             bet = score;
         }
+        resultQuote = G_GetLooseQuote();
     }
     
     if (score <= 0)
@@ -206,30 +262,6 @@ void G_DetermineResult (void)
 }
 
 
-
-// -----------------------------------------------------------------------------
-// D_GetRandomQuote
-//  Возвращает случайную цитату из списка.
-// -----------------------------------------------------------------------------
-
-const char *randomQuote = NULL;
-
-const char* D_GetRandomQuote (void)
-{
-    static const char *quotes[] = {
-        "Шанс на самурая? 1 к 10. Проверь удачу!",
-        "Будь-будь-будь... А-ОООО-ООО-Оо!?",
-        "Азарт — это не игра, а стиль жизни!",
-        "Надейся на удачу, но ставь с умом!",
-        "Каждый раунд — шанс стать чемпионом!",
-        "ХНА!™ Одобрено самураями.",
-        "Если ты проиграл — попробуй ещё раз!",
-        "CGA. 4 цвета. 1 победитель."
-    };
-
-    const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
-    return quotes[rand() % totalQuotes];
-}
 
 // -----------------------------------------------------------------------------
 // D_DrawTitleScreen
@@ -377,8 +409,9 @@ void D_DrawGameField (void)
         R_DrawTextCentered("╚══════════╝", 336, yellow);
     }
 
-    // [JN] TODO - Win/Loose string?
-    R_DrawTextCentered("Какой-нибудь текст", 368, gray);
+    // [PN] TODO - раскрашивать победную строчку синим, проигрышную красным?
+    if (resultQuote)
+    R_DrawTextCentered(resultQuote, 368, gray);
 }
 
 // -----------------------------------------------------------------------------
@@ -436,7 +469,8 @@ void D_KenoLoop (void)
                     rounds = 0;
                     gameOver = 0;
                     G_StartNewRound();
-                    randomQuote = D_GetRandomQuote(); // [PN] Обновляем цитату при рестарте!
+                    randomQuote = G_GetRandomQuote(); // [PN] Обновляем цитату при рестарте!
+                    resultQuote = NULL; // Сбрасываем сообщение при рестарте
                     mousePressed = 1;
 
                     // [PN] Игнорируем дальнейшую обработку клика после рестарта
@@ -504,7 +538,7 @@ void D_KenoLoop (void)
                             rounds = 0;
                             gameOver = 0;
                             G_StartNewRound();
-                            randomQuote = D_GetRandomQuote(); // [PN] Обновляем цитату при рестарте!
+                            randomQuote = G_GetRandomQuote(); // [PN] Обновляем цитату при рестарте!
                         }
                     }
                     else
@@ -537,7 +571,7 @@ void D_KenoLoop (void)
                             bet = 1;
                             rounds = 0;
                             gameOver = 0;
-                            randomQuote = D_GetRandomQuote(); // [PN] Обновляем цитату при возврате в меню
+                            randomQuote = G_GetRandomQuote(); // [PN] Обновляем цитату при возврате в меню
                         }
                     }
                 }
@@ -596,7 +630,7 @@ int main (int argc, char *argv[])
     font = TTF_OpenFontRW(rw, 0, FONT_SIZE);
 
     // [PN] Выбор цитаты при запуске игры
-    randomQuote = D_GetRandomQuote();
+    randomQuote = G_GetRandomQuote();
 
     D_KenoLoop();
     
