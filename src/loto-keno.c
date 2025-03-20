@@ -351,6 +351,7 @@ void G_DetermineResult (void)
     if (score <= 0)
     {
         gameOver = 1;
+        resultQuote = NULL;
     }
     else
     {
