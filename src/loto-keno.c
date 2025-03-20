@@ -52,6 +52,10 @@
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
+
+int isHoveringLeft;
+int isHoveringRight;
+
 int score = 10;
 int maxScore = 10; // [PN] Начальное значение соответствует стартовому счёту
 int bet = 1; // Запоминаем последнюю ставку
@@ -339,8 +343,15 @@ void D_DrawGameField (void)
     sprintf(roundText, "Раунд: %d", rounds);
     R_DrawText(roundText, 240, 112, white);
 
+    // [PN] Обработка событий мыши
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
 
-    const SDL_Color left_color = (choice == 1 ? white : magenta);
+    isHoveringLeft = (mouseX >= 16 && mouseX <= 320 && mouseY >= 176 && mouseY <= 256);
+    isHoveringRight = (mouseX >= 336 && mouseX <= 624 && mouseY >= 176 && mouseY <= 256);
+    const SDL_Color left_color = (isHoveringLeft || choice == 1) ? white : magenta;
+    const SDL_Color right_color = (isHoveringRight || choice == 2) ? white : magenta;
+
     R_DrawText("┌─────────────────┐", 16, 176, left_color);
     R_DrawText("│                 │", 16, 192, left_color);
     R_DrawText("│                 │", 16, 208, left_color);
@@ -349,7 +360,6 @@ void D_DrawGameField (void)
 
     R_DrawText("Будь-будь-будь!", 48, 208, left_color);
 
-    const SDL_Color right_color = (choice == 2 ? white : magenta);
     R_DrawText("┌────────────────┐", 336, 176, right_color);
     R_DrawText("│                │", 336, 192, right_color);
     R_DrawText("│                │", 336, 208, right_color);
@@ -379,6 +389,7 @@ void D_DrawGameField (void)
 void D_KenoLoop (void)
 {
     int running = 1;
+    int mousePressed = 0; // [PN] Флаг, который отслеживает, зажата ли кнопка мыши
     SDL_Event event;
     srand(time(NULL));
     
@@ -391,6 +402,69 @@ void D_KenoLoop (void)
                 running = 0;
                 return;
             }
+
+            // [PN] Обработка событий мыши
+            if (event.type == SDL_MOUSEWHEEL)
+            {
+                if (gameStarted && !gameOver)
+                {
+                    if (event.wheel.y > 0 && bet < score)
+                    {
+                        bet++; // Колесо вверх — увеличивает ставку
+                    }
+                    if (event.wheel.y < 0 && bet > 1)
+                    {
+                        bet--; // Колесо вниз — уменьшает ставку
+                    }
+                }
+            }
+            if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT && !mousePressed)
+            {
+                mousePressed = 1; // Фиксируем, что кнопка нажата
+
+                if (!gameStarted)
+                {
+                    gameStarted = 1;
+                    G_StartNewRound();
+                }
+
+                if (gameOver)
+                {
+                    // Перезапуск игры при нажатии ЛКМ на экране Game Over
+                    score = maxScore = 10;
+                    bet = 1;
+                    rounds = 0;
+                    gameOver = 0;
+                    G_StartNewRound();
+                    randomQuote = D_GetRandomQuote(); // [PN] Обновляем цитату при рестарте!
+                    mousePressed = 1;
+
+                    // [PN] Игнорируем дальнейшую обработку клика после рестарта
+                    continue;
+                }
+                
+                if (gameStarted && !gameOver && bet > 0)
+                {
+                    if (isHoveringLeft)
+                    {
+                        choice = 1; // Выбрано "Будь-будь-будь!"
+                    }
+                    else if (isHoveringRight)
+                    {
+                        choice = 2; // Выбрано "А-ОООО-ООО-Оо!"
+                    }
+            
+                    if (choice > 0)
+                    {
+                        G_DetermineResult(); // Обрабатываем ставку
+                    }
+                }
+            }
+            if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
+            {
+                mousePressed = 0; // [PN] Сбрасываем флаг при отпускании кнопки
+            }
+
 
             if (event.type == SDL_KEYDOWN)
             {
