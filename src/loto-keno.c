@@ -312,6 +312,23 @@ const char *G_GetLooseQuote (void)
 }
 
 // -----------------------------------------------------------------------------
+// G_ResetGame
+//  Сброс состояния игры
+// -----------------------------------------------------------------------------
+
+void G_ResetGame (void)
+{
+    score = maxScore = 10; // [PN] Сбрасываем счёт и максимальный счёт до начальных значений
+    bet = 1; // [PN] Сбрасываем ставку
+    rounds = 0; // [JN] Обнуляем счётчик раундов
+    gameOver = 0; // [PN] Сбрасываем флаг окончания игры
+    gameStarted = 0; // [PN] Сбрасываем флаг начала игры
+    gameHelp = 0; // [JN] Закрываем экран помощи
+    randomQuote = G_GetRandomQuote(); // [PN] Обновляем цитату на титульном экране
+    resultQuote = NULL; // [JN] Сбрасываем цитату результата ставки
+}
+
+// -----------------------------------------------------------------------------
 // G_DetermineResult
 //  Start new round.
 // -----------------------------------------------------------------------------
@@ -524,206 +541,153 @@ void D_DrawGameField (void)
     R_DrawTextCentered(resultQuote, 368, resultColor);
 }
 
+// Обработка событий мыши
+void HandleMouseEvents (SDL_Event *event)
+{
+    static int mousePressed = 0; // [PN] Отслеживание нажатия кнопки мыши
+
+    if (event->type == SDL_MOUSEWHEEL && gameStarted && !gameOver)
+    {
+        bet += (event->wheel.y > 0 && bet < score) ? 1 : 0; // [PN] Увеличиваем ставку
+        bet -= (event->wheel.y < 0 && bet > 1) ? 1 : 0;     // [PN] Уменьшаем ставку
+    }
+
+    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && !mousePressed)
+    {
+        mousePressed = 1; // [PN] Фиксируем нажатие кнопки
+
+        if (gameHelp)
+        {
+            gameHelp = 0; // [JN] Закрываем экран помощи
+            return;
+        }
+
+        if (!gameStarted)
+        {
+            gameStarted = 1; // [PN] Стартуем игру
+            G_StartNewRound();
+            return;
+        }
+
+        if (gameOver)
+        {
+            G_ResetGame(); // [PN] Перезапуск игры
+            gameStarted = 1;
+            G_StartNewRound();
+            return;
+        }
+
+        if (bet > 0)
+        {
+            choice = isHoveringLeft ? 1 : isHoveringRight ? 2 : 0; // [PN] Определяем выбор
+            if (choice > 0)
+                G_DetermineResult();
+        }
+    }
+
+    if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT)
+    {
+        mousePressed = 0; // [PN] Сбрасываем нажатие
+    }
+}
+
+// Обработка событий клавиатуры
+void HandleKeyboardEvents (SDL_Event *event)
+{
+    if (event->type != SDL_KEYDOWN) return;
+
+    SDL_Keycode key = event->key.keysym.sym;
+
+    if (key == SDLK_F1)
+    {
+        gameHelp ^= 1; // [JN] Переключаем экран помощи
+        return;
+    }
+
+    if (gameHelp)
+    {
+        gameHelp = 0; // [JN] Закрываем экран помощи
+        return;
+    }
+
+    if (!gameStarted)
+    {
+        if (key == SDLK_ESCAPE)
+            exit(0); // [PN] Выход из игры
+
+        gameStarted = 1; // [PN] Стартуем игру
+        G_StartNewRound();
+        return;
+    }
+
+    if (gameOver)
+    {
+        if (key == SDLK_RETURN || key == SDLK_KP_ENTER)
+        {
+            G_ResetGame(); // [PN] Перезапуск игры
+            gameStarted = 1;
+            G_StartNewRound();
+        }
+        return;
+    }
+
+    switch (key)
+    {
+        case SDLK_UP:     if (bet < score) bet++  break; // [PN] Увеличиваем ставку
+        case SDLK_DOWN:   if (bet > 1) bet--;     break; // [PN] Уменьшаем ставку
+        case SDLK_LEFT:   choice = 1;             break; // [PN] Выбор "Будь-будь-будь!"
+        case SDLK_RIGHT:  choice = 2;             break; // [PN] Выбор "А-ОООО-ООО-Оо!"
+
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+            if (choice > 0)
+                G_DetermineResult(); // [PN] Подтверждаем выбор
+            break;
+
+        case SDLK_ESCAPE:
+            G_ResetGame(); // [PN] Возвращаемся в меню
+            break;
+    }
+}
+
 // -----------------------------------------------------------------------------
 // D_KenoLoop
-//  Main game loop.
+//  Главный цикл игры.
 // -----------------------------------------------------------------------------
 
 void D_KenoLoop (void)
 {
-    int running = 1;
-    int mousePressed = 0; // [PN] Флаг, который отслеживает, зажата ли кнопка мыши
     SDL_Event event;
     srand(time(NULL));
-    
+
+    int running = 1;
     while (running)
     {
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
-            {
                 running = 0;
-                return;
-            }
 
-            // [PN] Обработка событий мыши
-            if (event.type == SDL_MOUSEWHEEL)
-            {
-                if (gameStarted && !gameOver)
-                {
-                    if (event.wheel.y > 0 && bet < score)
-                    {
-                        bet++; // Колесо вверх — увеличивает ставку
-                    }
-                    if (event.wheel.y < 0 && bet > 1)
-                    {
-                        bet--; // Колесо вниз — уменьшает ставку
-                    }
-                }
-            }
-            if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT && !mousePressed)
-            {
-                // [PN] Закрываем экран помощи по клику
-                if (gameHelp)
-                {
-                    gameHelp = 0;
-                    continue;
-                }
-
-                mousePressed = 1; // Фиксируем, что кнопка нажата
-
-                if (!gameStarted)
-                {
-                    gameStarted = 1;
-                    G_StartNewRound();
-                    continue; // [PN] Чтобы сразу не проваливаться дальше
-                }
-
-                if (gameOver)
-                {
-                    // Перезапуск игры при нажатии ЛКМ на экране Game Over
-                    score = maxScore = 10;
-                    bet = 1;
-                    rounds = 0;
-                    gameOver = 0;
-                    G_StartNewRound();
-                    randomQuote = G_GetRandomQuote(); // [PN] Обновляем цитату при рестарте!
-                    resultQuote = NULL; // Сбрасываем сообщение при рестарте
-                    mousePressed = 1;
-
-                    // [PN] Игнорируем дальнейшую обработку клика после рестарта
-                    continue;
-                }
-                
-                if (gameStarted && !gameOver && bet > 0)
-                {
-                    if (isHoveringLeft)
-                    {
-                        choice = 1; // Выбрано "Будь-будь-будь!"
-                    }
-                    else if (isHoveringRight)
-                    {
-                        choice = 2; // Выбрано "А-ОООО-ООО-Оо!"
-                    }
-            
-                    if (choice > 0)
-                    {
-                        G_DetermineResult(); // Обрабатываем ставку
-                    }
-                }
-            }
-            if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
-            {
-                mousePressed = 0; // [PN] Сбрасываем флаг при отпускании кнопки
-            }
-
-
-            if (event.type == SDL_KEYDOWN)
-            {
-                // [JN] Help screen can be invoked in any game state.
-                // Not in help screen? Open it. Otherwise, close it.
-                if (event.key.keysym.sym == SDLK_F1)
-                {
-                    gameHelp ^= 1;
-                }
-                else
-                {
-                    // [JN] Put away help screen by pressing any key.
-                    if (gameHelp)
-                    {
-                        gameHelp = 0;
-                        continue;
-                    }
-                    
-                    if (!gameStarted)
-                    {
-                        // [PN] Нажатие ESC в главном меню завершает программу
-                        if (event.key.keysym.sym == SDLK_ESCAPE)
-                        {
-                            running = 0;
-                            return;
-                        }
-
-                        gameStarted = 1;
-                        G_StartNewRound();
-                    }
-                    else if (gameOver)
-                    {
-                        if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER)
-                        {
-                            score = maxScore = 10;
-                            bet = 1;
-                            rounds = 0;
-                            gameOver = 0;
-                            G_StartNewRound();
-                            randomQuote = G_GetRandomQuote(); // [PN] Обновляем цитату при рестарте!
-                        }
-                    }
-                    else
-                    {
-                        if (event.key.keysym.sym == SDLK_UP && bet < score)
-                        {
-                            bet++;
-                        }
-                        if (event.key.keysym.sym == SDLK_DOWN && bet > 1)
-                        {
-                            bet--;
-                        }
-                        if (event.key.keysym.sym == SDLK_LEFT && bet > 0)
-                        {
-                            choice = 1;
-                        }
-                        if (event.key.keysym.sym == SDLK_RIGHT && bet > 0)
-                        {
-                            choice = 2;
-                        }
-                        if ((event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER) && choice > 0)
-                        {
-                            G_DetermineResult();
-                        }
-                        // [JN] Quit to title screen by pressing ESC.
-                        if (event.key.keysym.sym == SDLK_ESCAPE)
-                        {
-                            gameStarted = 0;
-                            score = maxScore = 10;
-                            bet = 1;
-                            rounds = 0;
-                            gameOver = 0;
-                            randomQuote = G_GetRandomQuote(); // [PN] Обновляем цитату при возврате в меню
-                        }
-                    }
-                }
-            }
+            HandleMouseEvents(&event);
+            HandleKeyboardEvents(&event);
         }
-        
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        
-        if (gameHelp)
-        {
-            D_DrawHelpScreen();
-        }
-        else
-        {
-            if (!gameStarted)
-            {
-                D_DrawTitleScreen();
-            }
-            else if (gameOver)
-            {
-                D_DrawGameOverScreen();
-            }
-            else
-            {
-                D_DrawGameField();
-            }
-        }
-        
-        SDL_RenderPresent(renderer);
 
-        // [PN] The game runs at a fixed 35 FPS, just like the classic Doom.
-        // The frame delay is calculated as 1000 ms / 35 ≈ 28.57 ms.
-        // We use SDL_Delay(28) to maintain a stable frame rate and reduce CPU usage.
+        if (gameHelp)
+            D_DrawHelpScreen();
+        else if (!gameStarted)
+            D_DrawTitleScreen();
+        else if (gameOver)
+            D_DrawGameOverScreen();
+        else
+            D_DrawGameField();
+
+        SDL_RenderPresent(renderer);
+        // [PN] Игра работает с фиксированной частотой 35 кадров в секунду — как в классическом Doom.
+        // Задержка между кадрами вычисляется как 1000 мс / 35 ≈ 28.57 мс.
+        // Мы используем SDL_Delay(28), чтобы поддерживать стабильный FPS и снизить нагрузку на процессор.
         SDL_Delay(28);
     }
 }
