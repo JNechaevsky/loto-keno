@@ -633,10 +633,10 @@ void HandleKeyboardEvents (SDL_Event *event)
 
     switch (key)
     {
-        case SDLK_UP:     if (bet < score) bet++  break; // [PN] Увеличиваем ставку
-        case SDLK_DOWN:   if (bet > 1) bet--;     break; // [PN] Уменьшаем ставку
-        case SDLK_LEFT:   choice = 1;             break; // [PN] Выбор "Будь-будь-будь!"
-        case SDLK_RIGHT:  choice = 2;             break; // [PN] Выбор "А-ОООО-ООО-Оо!"
+        case SDLK_UP:     if (bet < score) bet++;  break; // [PN] Увеличиваем ставку
+        case SDLK_DOWN:   if (bet > 1) bet--;      break; // [PN] Уменьшаем ставку
+        case SDLK_LEFT:   choice = 1;              break; // [PN] Выбор "Будь-будь-будь!"
+        case SDLK_RIGHT:  choice = 2;              break; // [PN] Выбор "А-ОООО-ООО-Оо!"
 
         case SDLK_RETURN:
         case SDLK_KP_ENTER:
