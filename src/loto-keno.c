@@ -56,6 +56,7 @@ TTF_Font *font = NULL;
 int isHoveringLeft;
 int isHoveringRight;
 
+int language = 0; // [JN] 0 = English, 1 = Русский
 int score = 10;
 int maxScore = 10; // [PN] Начальное значение соответствует стартовому счёту
 int bet = 1; // Запоминаем последнюю ставку
@@ -115,6 +116,22 @@ SDL_Color yellow = {255, 255, 85, 255};
 5555555555555555555555555555555555555555    384
 */
 
+// Title screen
+void D_SetLanguageStrings (void);
+char *lang_title_name;
+char *lang_title_version;
+char *lang_title_developed_by;
+char *lang_title_authors;
+char *lang_title_key_f1;
+char *lang_title_key_f2;
+char *lang_title_press_any_key;
+
+char *lang_game_score;
+char *lang_game_bet;
+char *lang_game_round;
+char *lang_game_bud_bud_bud;
+char *lang_game_aaa_ooo_ooo;
+char *lang_game_hna;
 
 
 
@@ -399,19 +416,22 @@ void D_DrawTitleScreen (void)
 {
     R_DrawTextCentered("╔══════════════════════╗", 16, white);
     R_DrawTextCentered("║                      ║", 32, white);
-    R_DrawTextCentered("║      Лото Кено!      ║", 48, white);
+    R_DrawTextCentered("║                      ║", 48, white);
     R_DrawTextCentered("║                      ║", 64, white);
     R_DrawTextCentered("╚══════════════════════╝", 80, white);
-
-    R_DrawTextCentered("Версия 1.0 (18.03.2025)", 112, magenta);
+    R_DrawTextCentered(lang_title_name, 48, white);
+    R_DrawTextCentered(lang_title_version, 112, magenta);
     R_DrawTextCentered(randomQuote, 144, magenta);
 
-    R_DrawTextCentered("Разработка и идея:", 192, white);
-    R_DrawTextCentered("Полина \"Аура\" Н. ♥ Юлия Нечаевская", 224, magenta);
+    R_DrawTextCentered(lang_title_developed_by, 192, white);
+    R_DrawTextCentered(lang_title_authors, 224, magenta);
 
-    R_DrawTextCentered("F1 - Помощь и правила", 288, white);
+    // R_DrawTextCentered(lang_title_key_f1, 288, white);
+    // R_DrawTextCentered(lang_title_key_f2, 320, white);
+    R_DrawText(lang_title_key_f1, 160, 288, white);
+    R_DrawText(lang_title_key_f2, 160, 320, white);
 
-    R_DrawTextCentered("Нажмите любую клавишу...", 368, white);
+    R_DrawTextCentered(lang_title_press_any_key, 368, white);
 }
 
 // -----------------------------------------------------------------------------
@@ -490,17 +510,20 @@ void D_DrawGameField (void)
     R_DrawTextCentered("║                      ║", 128, white);
     R_DrawTextCentered("╚══════════════════════╝", 144, white);
 
+    R_DrawText(lang_game_score, 144, 48, white);
     char scoreText[32];
-    sprintf(scoreText, "Очки: %d", score);
-    R_DrawText(scoreText, 256, 48, white);
+    sprintf(scoreText, "%d", score);
+    R_DrawText(scoreText, 352, 48, white);
 
+    R_DrawText(lang_game_bet, 144, 80, white);
     char betText[32];
-    sprintf(betText, "Ставка: %d", bet);
-    R_DrawText(betText, 224, 80, white);
+    sprintf(betText, "%d", bet);
+    R_DrawText(betText, 352, 80, white);
 
+    R_DrawText(lang_game_round, 144, 112, white);
     char roundText[32];
-    sprintf(roundText, "Раунд: %d", rounds);
-    R_DrawText(roundText, 240, 112, white);
+    sprintf(roundText, "%d", rounds);
+    R_DrawText(roundText, 352, 112, white);
 
     // [PN] Обработка событий мыши
     int mouseX, mouseY;
@@ -517,7 +540,7 @@ void D_DrawGameField (void)
     R_DrawText("│                 │", 16, 224, left_color);
     R_DrawText("└─────────────────┘", 16, 240, left_color);
 
-    R_DrawText("Будь-будь-будь!", 48, 208, left_color);
+    R_DrawText(lang_game_bud_bud_bud, 48, 208, left_color);
 
     R_DrawText("┌────────────────┐", 336, 176, right_color);
     R_DrawText("│                │", 336, 192, right_color);
@@ -525,15 +548,16 @@ void D_DrawGameField (void)
     R_DrawText("│                │", 336, 224, right_color);
     R_DrawText("└────────────────┘", 336, 240, right_color);
 
-    R_DrawText("А-ОООО-ООО-Оо!", 368, 208, right_color);
+    R_DrawText(lang_game_aaa_ooo_ooo, 368, 208, right_color);
 
     if (samuraiAppeared)
     {
         R_DrawTextCentered("╔══════════╗", 272, yellow);
         R_DrawTextCentered("║          ║", 288, yellow);
-        R_DrawTextCentered("║   ХНА!   ║", 304, yellow);
+        R_DrawTextCentered("║          ║", 304, yellow);
         R_DrawTextCentered("║          ║", 320, yellow);
         R_DrawTextCentered("╚══════════╝", 336, yellow);
+        R_DrawTextCentered(lang_game_hna, 304, yellow);
     }
 
     // [JN] TODO - Switch between 4 / 16 colors?
@@ -601,6 +625,13 @@ void HandleKeyboardEvents (SDL_Event *event)
     if (key == SDLK_F1)
     {
         gameHelp ^= 1; // [JN] Переключаем экран помощи
+        return;
+    }
+
+    if (key == SDLK_F2)
+    {
+        language ^= 1; // [JN] Смена языка
+        D_SetLanguageStrings();
         return;
     }
 
@@ -692,6 +723,45 @@ void D_KenoLoop (void)
     }
 }
 
+void D_SetLanguageStrings (void)
+{
+    switch (language)
+    {
+        case 0:  // English
+            lang_title_name = "Loto Keno!";
+            lang_title_version = "Version 1.0 (03/18/2025)"; // MM/DD/YYYY
+            lang_title_developed_by = "Developed and designed by:";
+            lang_title_authors = "Polina \"Aura\" N. ♥ Julia Nechaevskaya";
+            lang_title_key_f1 = "F1 - Help & Rules";
+            lang_title_key_f2 = "F2 - Change language";
+            lang_title_press_any_key = "Press any key...";
+            
+            lang_game_score = "      Score:";
+            lang_game_bet = "        Bet:";
+            lang_game_round = "      Round:";
+            lang_game_bud_bud_bud = "Blub-blub-blub!";
+            lang_game_aaa_ooo_ooo = "A-OOOO-OOO-Oo!";
+            lang_game_hna = "HNA!";
+            break;
+
+        case 1:  // Русский
+            lang_title_name = "Лото Кено!";
+            lang_title_version = "Версия 1.0 (18.03.2025)";     // DD.MM.YYYY
+            lang_title_developed_by = "Разработка и идея:";
+            lang_title_authors = "Полина \"Аура\" Н. ♥ Юлия Нечаевская";
+            lang_title_key_f1 = "F1 - Помощь и правила";
+            lang_title_key_f2 = "F2 - Сменить язык";
+            lang_title_press_any_key = "Нажмите любую клавишу...";
+
+            lang_game_score = "       Очки:";
+            lang_game_bet = "     Ставка:";
+            lang_game_round = "      Раунд:";
+            lang_game_bud_bud_bud = "Будь-будь-будь!";
+            lang_game_aaa_ooo_ooo = "А-ОООО-ООО-Оо!";
+            lang_game_hna = "ХНА!";
+            break;
+    }
+}
 
 // -----------------------------------------------------------------------------
 // Main program loop.
@@ -710,6 +780,9 @@ int main (int argc, char *argv[])
     // [PN] Загрузка шрифта, встроенного в код (font.c)
     SDL_RWops *rw = SDL_RWFromMem(ibm_vga_data, ibm_vga_data_len);
     font = TTF_OpenFontRW(rw, 0, FONT_SIZE);
+
+    // [JN] Предопределяем языковые строки.
+    D_SetLanguageStrings();
 
     // [PN] Выбор цитаты при запуске игры
     randomQuote = G_GetRandomQuote();
