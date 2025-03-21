@@ -38,6 +38,7 @@
 #include <time.h>
 
 #include "font.c"
+#include "lang.c"
 
 
 // Window size, representing CGA 320x200 mode (2x)
@@ -78,6 +79,7 @@ SDL_Color yellow  = { 255, 255,  85, 255 };
 SDL_Color blue    = {   0,   0, 170, 255 };
 SDL_Color red     = { 170,   0,   0, 255 };
 
+SDL_Color resultColor;
 
 
 
@@ -116,22 +118,6 @@ SDL_Color yellow = {255, 255, 85, 255};
 5555555555555555555555555555555555555555    384
 */
 
-// Title screen
-void D_SetLanguageStrings (void);
-char *lang_title_name;
-char *lang_title_version;
-char *lang_title_developed_by;
-char *lang_title_authors;
-char *lang_title_key_f1;
-char *lang_title_key_f2;
-char *lang_title_press_any_key;
-
-char *lang_game_score;
-char *lang_game_bet;
-char *lang_game_round;
-char *lang_game_bud_bud_bud;
-char *lang_game_aaa_ooo_ooo;
-char *lang_game_hna;
 
 
 
@@ -172,160 +158,34 @@ void R_DrawTextCentered (const char *text, int y, SDL_Color color)
 //  Возвращает случайную цитату из списка.
 // -----------------------------------------------------------------------------
 
-const char *randomQuote = NULL;
-
-const char* G_GetRandomQuote (void)
+const char *G_GetRandomQuote (int randomize)
 {
-    static const char *quotes[] = {
-        "Шанс на самурая? 1 к 10. Проверь удачу!",
-        "Будь-будь-будь... А-ОООО-ООО-Оо!?",
-        "Азарт — это не игра, а стиль жизни!",
-        "Надейся на удачу, но ставь с умом!",
-        "Каждый раунд — шанс стать чемпионом!",
-        "ХНА!™ Одобрено самураями.",
-        "Если ты проиграл — попробуй ещё раз!",
-        "CGA. 4 цвета. 1 победитель."
-    };
+    static int randomQuoteIndex = 0;
 
-    const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
-    return quotes[rand() % totalQuotes];
+    if (randomize)
+        randomQuoteIndex = rand() % lang_title_quote_size;
+
+    return lang_title_quote[randomQuoteIndex];
 }
 
-const char *resultQuote = NULL;
-SDL_Color resultColor;
-
-const char *G_GetWinQuote (void)
+const char *G_GetWinQuote (int randomize)
 {
-    static const char *quotes[] = {
-        // [PN] Победные фразы:
-        "Спасибо!",
-        "Очень сытно!",
-        "ДА! Хорошо!",
-        "Ваш звонок очень важен для нас!",
-        "Вы приняты на работу!",
-        "Ура! Молоко не убежало!",
-        "Теперь вы старший самурай!",
-        "За вами выехал лимузин.",
-        "Вы нашли смысл жизни!",
-        "Ну вот, теперь вы робот!",
-        "Разрешаю съесть ещё печенье!",
-        "Вы в два раза мощнее!",
-        "Коты одобряют ваш выбор.",
-        "Шашлыки уже жарятся!",
-        "Великолепно, 10 из 10!",
-        "Вау! О! А! Ничего себе!",
-        "Вы дали мне надежду!",
-        "Ваши ноги прекрасны!",
-        "ДАА! СПАСИБО!",
-        "Теперь можно пить чай.",
-        "Одобрено кенгуру!",
-        "Вы идеальны!",
-        "Что ж, замечательно!",
-        "Справедливо!",
-        "Превосходно! Ядовито!",
-        // [JN] Добавим абсурда!
-        "Тумба-пумба!",
-        "Менно-заменно.",
-        "По-о-о-о-о!",
-        "Ца-а!",
-        "Узю!",
-        "Э-эх!",
-        "О-ох!",
-        "Пристойно.",
-        "Благочинно.",
-        "Д!",
-        "Быр-быр-быр!",
-        "Дзаыца!!",
-        "Господи, помилуй!",
-        "Монетки зазвенели!",
-        "Ача-ача!",
-        "Ааа-ээээ!",
-        "Огурчики!",
-        "Помидорчики!",
-        "Бонус на карту лояльности!",
-        "Как в пятничку!",
-        "Приходите ещё!",
-        "Надо-надо!",
-        "Хььььк!",
-        "Ра-та-та-та!",
-        "А, ооо-оо-оо!",
-        // [ND]
-        "Роццю!",
-        "Мдао!",
-        "Дяссь!",
-        "Гкуньа!",
-        "Зао-жунь!",
-    };
+    static int randomWinQuoteIndex = 0;
 
-    const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
-    return quotes[rand() % totalQuotes];
+    if (randomize)
+        randomWinQuoteIndex = rand() % lang_game_quote_win_size;
+
+    return lang_game_win_quote[randomWinQuoteIndex];
 }
 
-const char *G_GetLooseQuote (void)
+const char *G_GetLooseQuote (int randomize)
 {
-    static const char *quotes[] = {
-        // [PN] Проигрышные фразы:
-        "Блины подгорели.",
-        "Ну, почти!",
-        "Кошка на вас обиделась.",
-        "Чуть-чуть не хватило!",
-        "Вы всё ещё красивы!",
-        "Кролик разочарован.",
-        "Процессор перегрелся.",
-        "Ваши очки упали.",
-        "Сосед грустно посмотрел.",
-        "Упс! Оп-оп!",
-        "Это было немыслимо!",
-        "Вы — мой герой! Но нет.",
-        "Грустный звук тромбона.",
-        "Обманули!",
-        "Почти! (но нет).",
-        "Ковёр недоволен.",
-        "Кто-то вздохнул в углу.",
-        "Оладушек сбежал.",
-        "Это был эксперимент!",
-        "Всё пошло не по плану!",
-        "Велосипед молча уехал.",
-        "Теперь ещё разок!",
-        "Курица сказала \"нет\".",
-        "Система не справилась.",
-        "Банан отменён!",
-        // [JN] Добавим абсурда!
-        "Не надо!",
-        "Ничего не надо.",
-        "Пээээ!",
-        "Нет.",
-        "Ни.",
-        "Растратно!",
-        "ПЭЭЭэээ!",
-        "Плохо куплено.",
-        "Недостатошно.",
-        "Пцьк!",
-        "Досвидание.",
-        "Приходите ещё!",
-        "Не сказали!",
-        "ТРРррщ!",
-        "Псё!",
-        "Кцло-о!",
-        "Пцлэ-э!",
-        "Пыыыы!",
-        "Разорение!",
-        "Крыша едет, водичка потекла.",
-        "Неудовлетворительно.",
-        "ПУ-УП!",
-        "П-ф-ф-ф-ф...",
-        "Кепочка на бок упала.",
-        "Конокрадство!",
-        // [ND]
-        "Трыщ.",
-        "Жжыц.", 
-        "Сёмщ.",
-        "Луфьр.",
-        "Мрякс.",
-    };
+    static int randomLooseQuoteIndex = 0;
 
-    const int totalQuotes = sizeof(quotes) / sizeof(quotes[0]);
-    return quotes[rand() % totalQuotes];
+    if (randomize)
+        randomLooseQuoteIndex = rand() % lang_game_quote_loose_size;
+
+    return lang_game_loose_quote[randomLooseQuoteIndex];
 }
 
 // -----------------------------------------------------------------------------
@@ -341,8 +201,9 @@ void G_ResetGame (void)
     gameOver = 0; // [PN] Сбрасываем флаг окончания игры
     gameStarted = 0; // [PN] Сбрасываем флаг начала игры
     gameHelp = 0; // [JN] Закрываем экран помощи
-    randomQuote = G_GetRandomQuote(); // [PN] Обновляем цитату на титульном экране
+    G_GetRandomQuote(1); // [PN] Обновляем цитату при старте новой игры
     resultQuote = NULL; // [JN] Сбрасываем цитату результата ставки
+    resultQuoteIndex = -1;
 }
 
 // -----------------------------------------------------------------------------
@@ -379,8 +240,9 @@ void G_DetermineResult (void)
         {
             maxScore = score;
         }
-        resultQuote = G_GetWinQuote();
         resultColor = blue;
+        resultQuoteIndex = rand() % lang_game_quote_win_size;
+        resultIsWin = 1; // [PN] 💙 вот это важно!
     }
     else
     {
@@ -390,14 +252,15 @@ void G_DetermineResult (void)
         {
             bet = score;
         }
-        resultQuote = G_GetLooseQuote();
         resultColor = red;
+        resultQuoteIndex = rand() % lang_game_quote_loose_size;
+        resultIsWin = 0; // [PN] ❤️ и это тоже!
     }
     
     if (score <= 0)
     {
         gameOver = 1;
-        resultQuote = NULL;
+        //resultQuote = NULL;
     }
     else
     {
@@ -421,13 +284,11 @@ void D_DrawTitleScreen (void)
     R_DrawTextCentered("╚══════════════════════╝", 80, white);
     R_DrawTextCentered(lang_title_name, 48, white);
     R_DrawTextCentered(lang_title_version, 112, magenta);
-    R_DrawTextCentered(randomQuote, 144, magenta);
+    R_DrawTextCentered(G_GetRandomQuote(0), 144, magenta);
 
     R_DrawTextCentered(lang_title_developed_by, 192, white);
     R_DrawTextCentered(lang_title_authors, 224, magenta);
 
-    // R_DrawTextCentered(lang_title_key_f1, 288, white);
-    // R_DrawTextCentered(lang_title_key_f2, 320, white);
     R_DrawText(lang_title_key_f1, 160, 288, white);
     R_DrawText(lang_title_key_f2, 160, 320, white);
 
@@ -474,7 +335,7 @@ void D_DrawHelpScreen (void)
 
 void D_DrawGameOverScreen (void)
 {
-    R_DrawTextCentered("ЛОТО КЕНО ЗАКОНЧЕНО", 160, white);
+    R_DrawTextCentered(lang_over_game, 160, white);
 
     // [PN] Русский язык — тот ещё монстр склонений, поэтому нужно учитывать
     // числа 11–14, 111–114 и т.д., чтобы не получилось ошибок.
@@ -490,7 +351,7 @@ void D_DrawGameOverScreen (void)
 
     R_DrawTextCentered(gameOverText, 192, white);
 
-    R_DrawTextCentered("Нажмите ENTER для перезапуска", 240, cyan);
+    R_DrawTextCentered(lang_over_enter, 240, cyan);
 }
 
 // -----------------------------------------------------------------------------
@@ -561,8 +422,14 @@ void D_DrawGameField (void)
     }
 
     // [JN] TODO - Switch between 4 / 16 colors?
-    if (resultQuote)
-    R_DrawTextCentered(resultQuote, 368, resultColor);
+    if (resultQuoteIndex >= 0)
+    {
+        const char *quote = resultIsWin
+            ? lang_game_win_quote[resultQuoteIndex]
+            : lang_game_loose_quote[resultQuoteIndex];
+    
+        R_DrawTextCentered(quote, 368, resultColor);
+    }
 }
 
 // Обработка событий мыши
@@ -728,39 +595,61 @@ void D_SetLanguageStrings (void)
     switch (language)
     {
         case 0:  // English
-            lang_title_name = "Loto Keno!";
-            lang_title_version = "Version 1.0 (03/18/2025)"; // MM/DD/YYYY
-            lang_title_developed_by = "Developed and designed by:";
-            lang_title_authors = "Polina \"Aura\" N. ♥ Julia Nechaevskaya";
-            lang_title_key_f1 = "F1 - Help & Rules";
-            lang_title_key_f2 = "F2 - Change language";
-            lang_title_press_any_key = "Press any key...";
+            SDL_SetWindowTitle(window, TXT_TITLE_NAME_ENG);
+            lang_title_name = TXT_TITLE_NAME_ENG;
+            lang_title_version = TXT_TITLE_VERSION_ENG;
+            lang_title_developed_by = TXT_TITLE_DEVELOPED_BY_ENG;
+            lang_title_authors = TXT_TITLE_AUTHORS_ENG;
+            lang_title_key_f1 = TXT_TITLE_KEY_F1_ENG;
+            lang_title_key_f2 = TXT_TITLE_KEY_F2_ENG;
+            lang_title_press_any_key = TXT_TITLE_PRESS_ANY_KEY_ENG;
+            lang_title_quote = txt_title_quotes_eng;
+            lang_title_quote_size = sizeof(txt_title_quotes_eng) / sizeof(txt_title_quotes_eng[0]);
             
-            lang_game_score = "      Score:";
-            lang_game_bet = "        Bet:";
-            lang_game_round = "      Round:";
-            lang_game_bud_bud_bud = "Blub-blub-blub!";
-            lang_game_aaa_ooo_ooo = "A-OOOO-OOO-Oo!";
-            lang_game_hna = "HNA!";
+            lang_game_score = TXT_GAME_SCORE_ENG;
+            lang_game_bet = TXT_GAME_BET_ENG;
+            lang_game_round = TXT_GAME_ROUND_ENG;
+            lang_game_bud_bud_bud = TXT_GAME_BUD_BUD_BUD_ENG;
+            lang_game_aaa_ooo_ooo = TXT_GAME_AAA_OOO_OOO_ENG;
+            lang_game_hna = TXT_GAME_HNA_ENG;
+            lang_game_win_quote = txt_game_win_quotes_eng;
+            lang_game_quote_win_size = sizeof(txt_game_win_quotes_eng) / sizeof(txt_game_win_quotes_eng[0]);
+            lang_game_loose_quote = txt_game_loose_quotes_eng;
+            lang_game_quote_loose_size = sizeof(txt_game_loose_quotes_eng) / sizeof(txt_game_loose_quotes_eng[0]);
+
+            lang_over_game = TXT_OVER_GAME_ENG;
+            lang_over_enter = TXT_OVER_ENTER_ENG;
             break;
 
         case 1:  // Русский
-            lang_title_name = "Лото Кено!";
-            lang_title_version = "Версия 1.0 (18.03.2025)";     // DD.MM.YYYY
-            lang_title_developed_by = "Разработка и идея:";
-            lang_title_authors = "Полина \"Аура\" Н. ♥ Юлия Нечаевская";
-            lang_title_key_f1 = "F1 - Помощь и правила";
-            lang_title_key_f2 = "F2 - Сменить язык";
-            lang_title_press_any_key = "Нажмите любую клавишу...";
+            SDL_SetWindowTitle(window, TXT_TITLE_NAME_RUS);
+            lang_title_name = TXT_TITLE_NAME_RUS;
+            lang_title_version = TXT_TITLE_VERSION_RUS;
+            lang_title_developed_by = TXT_TITLE_DEVELOPED_BY_RUS;
+            lang_title_authors = TXT_TITLE_AUTHORS_RUS;
+            lang_title_key_f1 = TXT_TITLE_KEY_F1_RUS;
+            lang_title_key_f2 = TXT_TITLE_KEY_F2_RUS;
+            lang_title_press_any_key = TXT_TITLE_PRESS_ANY_KEY_RUS;
+            lang_title_quote = txt_title_quotes_rus;
+            lang_title_quote_size = sizeof(txt_title_quotes_rus) / sizeof(txt_title_quotes_rus[0]);
 
-            lang_game_score = "       Очки:";
-            lang_game_bet = "     Ставка:";
-            lang_game_round = "      Раунд:";
-            lang_game_bud_bud_bud = "Будь-будь-будь!";
-            lang_game_aaa_ooo_ooo = "А-ОООО-ООО-Оо!";
-            lang_game_hna = "ХНА!";
+            lang_game_score = TXT_GAME_SCORE_RUS;
+            lang_game_bet = TXT_GAME_BET_RUS;
+            lang_game_round = TXT_GAME_ROUND_RUS;
+            lang_game_bud_bud_bud = TXT_GAME_BUD_BUD_BUD_RUS;
+            lang_game_aaa_ooo_ooo = TXT_GAME_AAA_OOO_OOO_RUS;
+            lang_game_hna = TXT_GAME_HNA_RUS;
+            lang_game_win_quote = txt_game_win_quotes_rus;
+            lang_game_quote_win_size = sizeof(txt_game_win_quotes_rus) / sizeof(txt_game_win_quotes_rus[0]);
+            lang_game_loose_quote = txt_game_loose_quotes_rus;
+            lang_game_quote_loose_size = sizeof(txt_game_loose_quotes_rus) / sizeof(txt_game_loose_quotes_rus[0]);
+
+            lang_over_game = TXT_OVER_GAME_RUS;
+            lang_over_enter = TXT_OVER_ENTER_RUS;
             break;
     }
+    // [PN] Выбираем новую цитату при смене языка
+    G_GetRandomQuote(0);
 }
 
 // -----------------------------------------------------------------------------
@@ -774,7 +663,7 @@ int main (int argc, char *argv[])
         return 1;
     }
 
-    window = SDL_CreateWindow("Лото Кено!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
+    window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     
     // [PN] Загрузка шрифта, встроенного в код (font.c)
@@ -783,9 +672,8 @@ int main (int argc, char *argv[])
 
     // [JN] Предопределяем языковые строки.
     D_SetLanguageStrings();
-
-    // [PN] Выбор цитаты при запуске игры
-    randomQuote = G_GetRandomQuote();
+    // [PN] Выбираем первую случайную цитату
+    G_GetRandomQuote(1);
 
     D_KenoLoop();
     
