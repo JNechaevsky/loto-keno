@@ -467,7 +467,7 @@ void HandleKeyboardEvents (SDL_Event *event)
     SDL_Keycode key = event->key.keysym.sym;
     const Uint16 mod = event->key.keysym.mod;
 
-    if (key == SDLK_RETURN && (mod & KMOD_ALT))
+    if ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && (mod & KMOD_ALT))
     {
         // [PN] Alt + Enter пойман, переключение в полноэкранный режим
         fullscreen ^= 1;
@@ -662,7 +662,6 @@ int main (int argc, char *argv[])
 
     window_flags = SDL_WINDOW_RESIZABLE;
     window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
-    //window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, window_flags);
 
     renderer_flags = SDL_RENDERER_TARGETTEXTURE;
