@@ -316,21 +316,15 @@ void D_DrawGameOverScreen (void)
 {
     R_DrawTextCentered(lang_over_game, 160, white);
 
-    // [PN] Русский язык — тот ещё монстр склонений, поэтому нужно учитывать
-    // числа 11–14, 111–114 и т.д., чтобы не получилось ошибок.
-    char gameOverText[64];
-    const int lastTwoDigits = rounds % 100;
-    const int lastDigit = rounds % 10;
+    char roundsText[64];
+    sprintf(roundsText, "%s %d", lang_over_rounds, rounds);
+    R_DrawText(roundsText, 64, 192, white);
+    
+    char scoreText[64];
+    sprintf(scoreText, "%s %d", lang_over_max_score, maxScore);
+    R_DrawText(scoreText, 64, 224, white);
 
-    sprintf(gameOverText, "Максимальный счёт: %d (%d %s)", maxScore, rounds,
-           (lastTwoDigits >= 11 && lastTwoDigits <= 14) ? "раундов" :
-           (lastDigit == 1) ? "раунд" :
-           (lastDigit >= 2 && lastDigit <= 4) ? "раунда" :
-           "раундов");
-
-    R_DrawTextCentered(gameOverText, 192, white);
-
-    R_DrawTextCentered(lang_over_enter, 240, cyan);
+    R_DrawTextCentered(lang_over_enter, 304, cyan);
 }
 
 // -----------------------------------------------------------------------------
@@ -600,6 +594,8 @@ void D_SetLanguageStrings (void)
             lang_game_quote_loose_size = sizeof(txt_game_loose_quotes_eng) / sizeof(txt_game_loose_quotes_eng[0]);
 
             lang_over_game = TXT_OVER_GAME_ENG;
+            lang_over_rounds = TXT_OVER_ROUNDS_ENG;
+            lang_over_max_score = TXT_OVER_MAX_SCORE_ENG;
             lang_over_enter = TXT_OVER_ENTER_ENG;
             break;
 
@@ -630,6 +626,8 @@ void D_SetLanguageStrings (void)
             lang_game_quote_loose_size = sizeof(txt_game_loose_quotes_rus) / sizeof(txt_game_loose_quotes_rus[0]);
 
             lang_over_game = TXT_OVER_GAME_RUS;
+            lang_over_rounds = TXT_OVER_ROUNDS_RUS;
+            lang_over_max_score = TXT_OVER_MAX_SCORE_RUS;
             lang_over_enter = TXT_OVER_ENTER_RUS;
             break;
     }

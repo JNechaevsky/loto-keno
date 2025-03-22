@@ -25,13 +25,13 @@
 
 // Title screen
 void D_SetLanguageStrings (void);
-char *lang_title_name;
-char *lang_title_version;
-char *lang_title_developed_by;
-char *lang_title_authors;
-char *lang_title_key_f1;
-char *lang_title_key_f2;
-char *lang_title_press_any_key;
+const char *lang_title_name;
+const char *lang_title_version;
+const char *lang_title_developed_by;
+const char *lang_title_authors;
+const char *lang_title_key_f1;
+const char *lang_title_key_f2;
+const char *lang_title_press_any_key;
 
 const char **lang_title_quote;
 int lang_title_quote_size;
@@ -41,12 +41,12 @@ const char **lang_help_lines;
 int lang_help_lines_count;
 
 // Game field
-char *lang_game_score;
-char *lang_game_bet;
-char *lang_game_round;
-char *lang_game_bud_bud_bud;
-char *lang_game_aaa_ooo_ooo;
-char *lang_game_hna;
+const char *lang_game_score;
+const char *lang_game_bet;
+const char *lang_game_round;
+const char *lang_game_bud_bud_bud;
+const char *lang_game_aaa_ooo_ooo;
+const char *lang_game_hna;
 
 
 int resultQuoteIndex = -1;
@@ -58,8 +58,10 @@ int lang_game_quote_win_size;
 int lang_game_quote_loose_size;
 
 // Game over
-char *lang_over_game;
-char *lang_over_enter;
+const char *lang_over_game;
+const char *lang_over_rounds;
+const char *lang_over_max_score;
+const char *lang_over_enter;
 
 
 
@@ -242,6 +244,8 @@ static const char *txt_game_loose_quotes_eng[] = {
 };
 
 #define TXT_OVER_GAME_ENG           "GAME OVER"
+#define TXT_OVER_ROUNDS_ENG         "       Rounds played:"
+#define TXT_OVER_MAX_SCORE_ENG      "         Highest win:"
 #define TXT_OVER_ENTER_ENG          "Press ENTER to restart"
 
 // -----------------------------------------------------------------------------
@@ -423,5 +427,7 @@ static const char *txt_game_loose_quotes_rus[] = {
 };
 
 #define TXT_OVER_GAME_RUS           "ИГРА ЗАКОНЧЕНА"
+#define TXT_OVER_ROUNDS_RUS         "        Сыграно раундов:"
+#define TXT_OVER_MAX_SCORE_RUS      "   Максимальный выигрыш:"
 #define TXT_OVER_ENTER_RUS          "Нажмите ENTER для перезапуска"
 
