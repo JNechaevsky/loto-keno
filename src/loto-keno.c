@@ -665,7 +665,7 @@ int main (int argc, char *argv[])
     window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, window_flags);
 
     renderer_flags = SDL_RENDERER_TARGETTEXTURE;
-    renderer_flags |= SDL_RENDERER_SOFTWARE;
+    renderer_flags |= SDL_RENDERER_PRESENTVSYNC;
     renderer = SDL_CreateRenderer(window, -1, renderer_flags);
 
     SDL_RenderSetLogicalSize(renderer, SCREENWIDTH, SCREENHEIGHT);
