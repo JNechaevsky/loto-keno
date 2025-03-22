@@ -641,14 +641,23 @@ void D_SetLanguageStrings (void)
 
 int main (int argc, char *argv[])
 {
+    int window_flags = 0, renderer_flags = 0;
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1)
     {
         return 1;
     }
 
-    window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-    
+    window_flags = SDL_WINDOW_RESIZABLE;
+    window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+    //window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+    window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, window_flags);
+
+    renderer_flags = SDL_RENDERER_TARGETTEXTURE;
+    renderer = SDL_CreateRenderer(window, -1, renderer_flags);
+
+    SDL_RenderSetLogicalSize(renderer, SCREENWIDTH, SCREENHEIGHT);
+
     // [PN] Загрузка шрифта, встроенного в код (font.c)
     SDL_RWops *rw = SDL_RWFromMem(ibm_vga_data, ibm_vga_data_len);
     font = TTF_OpenFontRW(rw, 0, FONT_SIZE);
