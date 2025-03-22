@@ -24,10 +24,10 @@
 
 // Компиляция под Windows / MSYS:
 //  windres loto-keno.rc -o loto-keno.o 
-//  gcc loto-keno.c loto-keno.o -o loto-keno.exe -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lgdi32 -mwindows
+//  gcc -O3 -s loto-keno.c loto-keno.o -o loto-keno.exe -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lgdi32 -mwindows
 //
 // Компиляция под Linux:
-//  gcc loto-keno.c -o loto-keno -lSDL2main -lSDL2 -lSDL2_ttf
+//  gcc -O3 -s loto-keno.c -o loto-keno -lSDL2main -lSDL2 -lSDL2_ttf
 
 
 #include <SDL2/SDL.h>
