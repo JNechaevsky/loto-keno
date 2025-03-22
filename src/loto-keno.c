@@ -360,8 +360,10 @@ void D_DrawGameField (void)
     R_DrawText(roundText, 352, 112, white);
 
     // [PN] Обработка событий мыши
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
+    int realX, realY;
+    float mouseX, mouseY;
+    SDL_GetMouseState(&realX, &realY);
+    SDL_RenderWindowToLogical(renderer, (float)realX, (float)realY, &mouseX, &mouseY);
 
     isHoveringLeft = (mouseX >= 16 && mouseX <= 320 && mouseY >= 176 && mouseY <= 256);
     isHoveringRight = (mouseX >= 336 && mouseX <= 624 && mouseY >= 176 && mouseY <= 256);
