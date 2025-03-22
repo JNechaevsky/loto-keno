@@ -54,6 +54,8 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 
+int fullscreen = 0;
+
 int isHoveringLeft;
 int isHoveringRight;
 
@@ -463,6 +465,14 @@ void HandleKeyboardEvents (SDL_Event *event)
     if (event->type != SDL_KEYDOWN) return;
 
     SDL_Keycode key = event->key.keysym.sym;
+    const Uint16 mod = event->key.keysym.mod;
+
+    if (key == SDLK_RETURN && (mod & KMOD_ALT))
+    {
+        // [PN] Alt + Enter пойман, переключение в полноэкранный режим
+        fullscreen ^= 1;
+        SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+    }
 
     if (key == SDLK_F1)
     {
