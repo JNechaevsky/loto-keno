@@ -36,6 +36,10 @@ char *lang_title_press_any_key;
 const char **lang_title_quote;
 int lang_title_quote_size;
 
+// Help 
+const char **lang_help_lines;
+int lang_help_lines_count;
+
 // Game field
 char *lang_game_score;
 char *lang_game_bet;
@@ -69,7 +73,7 @@ char *lang_over_enter;
 #define TXT_TITLE_DEVELOPED_BY_ENG  "Developed and designed by:"
 #define TXT_TITLE_AUTHORS_ENG       "Polina \"Aura\" N. ♥ Julia Nechaevskaya"
 #define TXT_TITLE_KEY_F1_ENG        "F1 - Help & Rules"
-#define TXT_TITLE_KEY_F2_ENG        "F2 - Change language"
+#define TXT_TITLE_KEY_F2_ENG        "F2 - Language: English"
 #define TXT_TITLE_PRESS_ANY_KEY_ENG "Press any key..."
 
 static const char *txt_title_quotes_eng[] = {
@@ -81,6 +85,32 @@ static const char *txt_title_quotes_eng[] = {
     "HNA!™ Samurai Approved.",
     "Lost? Try again!",
     "CGA: 4 colors, 1 winner.",
+};
+
+static const char *txt_help_lines_eng[] = {
+    "┌────────────────────────────────────┐",
+    "│          LOTO KENO - RULES         │",
+    "├────────────────────────────────────┤",
+    "│ You start with 10 points.          │",
+    "│ You can bet from 1 up to your      │",
+    "│ current amount.                    │",
+    "│ Then make a choice and see         │",
+    "│ if luck is on your side.           │",
+    "│                                    │",
+    "│ If HNA! appears, win or loss       │",
+    "│ is doubled.                        │",
+    "│                                    │",
+    "│ Game continues until you run       │",
+    "│ out of points. If they reach zero, │",
+    "│ you lose.                          │",
+    "│                                    │",
+    "│ Controls:                          │",
+    "│ ← and → - select                   │",
+    "│ ↑ and ↓ - change bet               │",
+    "│ ENTER - confirm                    │",
+    "│                                    │",
+    "│            Good luck!              │",
+    "└────────────────────────────────────┘",
 };
 
 #define TXT_GAME_SCORE_ENG          "      Score:"
@@ -223,7 +253,7 @@ static const char *txt_game_loose_quotes_eng[] = {
 #define TXT_TITLE_DEVELOPED_BY_RUS  "Разработка и идея:"
 #define TXT_TITLE_AUTHORS_RUS       "Полина \"Аура\" Н. ♥ Юлия Нечаевская"
 #define TXT_TITLE_KEY_F1_RUS        "F1 - Помощь и правила"
-#define TXT_TITLE_KEY_F2_RUS        "F2 - Сменить язык"
+#define TXT_TITLE_KEY_F2_RUS        "F2 - Язык: Русский"
 #define TXT_TITLE_PRESS_ANY_KEY_RUS "Нажмите любую клавишу..."
 
 static const char *txt_title_quotes_rus[] = {
@@ -235,6 +265,32 @@ static const char *txt_title_quotes_rus[] = {
     "ХНА!™ Одобрено самураями.",
     "Если ты проиграл — попробуй ещё раз!",
     "CGA. 4 цвета. 1 победитель."
+};
+
+static const char *txt_help_lines_rus[] = {
+    "┌────────────────────────────────────┐",
+    "│          ЛОТО КЕНО - ПРАВИЛА       │",
+    "├────────────────────────────────────┤",
+    "│ В начале у вас есть 10 очков.      │",
+    "│ Вы можете сделать ставку от 1      │",
+    "│ до вашего текущего количества.     │",
+    "│ Затем выберите вариант и узнайте,  │",
+    "│ повезло ли вам.                    │",
+    "│                                    │",
+    "│ Если появляется ХНА!, выигрыш      │",
+    "│ или проигрыш удваивается.          │",
+    "│                                    │",
+    "│ Игра продолжается, пока у вас есть │",
+    "│ очки. Если они закончатся, вы      │",
+    "│ проиграете.                        │",
+    "│                                    │",
+    "│ Управление:                        │",
+    "│ ← и → - выбор                      │",
+    "│ ↑ и ↓ - изменение ставки           │",
+    "│ ENTER - подтвердить                │",
+    "│                                    │",
+    "│               Удачи!               │",
+    "└────────────────────────────────────┘",
 };
 
 #define TXT_GAME_SCORE_RUS          "       Очки:"

@@ -301,29 +301,10 @@ void D_DrawTitleScreen (void)
 
 void D_DrawHelpScreen (void)
 {
-    R_DrawText("┌────────────────────────────────────┐", 16,  16, white);
-    R_DrawText("│          ЛОТО КЕНО - ПРАВИЛА       │", 16,  32, white);
-    R_DrawText("├────────────────────────────────────┤", 16,  48, white);
-    R_DrawText("│ В начале у вас есть 10 очков.      │", 16,  64, white);
-    R_DrawText("│ Вы можете сделать ставку от 1      │", 16,  80, white);
-    R_DrawText("│ до вашего текущего количества.     │", 16,  96, white);
-    R_DrawText("│ Затем выберите вариант и узнайте,  │", 16, 112, white);
-    R_DrawText("│ повезло ли вам.                    │", 16, 128, white);
-    R_DrawText("│                                    │", 16, 144, white);
-    R_DrawText("│ Если появляется ХНА!, выигрыш      │", 16, 160, white);
-    R_DrawText("│ или проигрыш удваивается.          │", 16, 176, white);
-    R_DrawText("│                                    │", 16, 192, white);
-    R_DrawText("│ Игра продолжается, пока у вас есть │", 16, 208, white);
-    R_DrawText("│ очки. Если они закончатся, вы      │", 16, 224, white);
-    R_DrawText("│ проиграете.                        │", 16, 240, white);
-    R_DrawText("│                                    │", 16, 256, white);
-    R_DrawText("│ Управление:                        │", 16, 272, white);
-    R_DrawText("│ ← и → - выбор                      │", 16, 288, white);
-    R_DrawText("│ ↑ и ↓ - изменение ставки           │", 16, 304, white);
-    R_DrawText("│ ENTER - подтвердить                │", 16, 320, white);
-    R_DrawText("│                                    │", 16, 336, white);
-    R_DrawText("│               Удачи!               │", 16, 352, white);
-    R_DrawText("└────────────────────────────────────┘", 16, 368, white);
+    for (int i = 0; i < lang_help_lines_count; i++)
+    {
+        R_DrawText(lang_help_lines[i], 16, 16 + i * 16, white);
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -604,6 +585,9 @@ void D_SetLanguageStrings (void)
             lang_title_quote = txt_title_quotes_eng;
             lang_title_quote_size = sizeof(txt_title_quotes_eng) / sizeof(txt_title_quotes_eng[0]);
             
+            lang_help_lines = txt_help_lines_eng;
+            lang_help_lines_count = sizeof(txt_help_lines_eng) / sizeof(txt_help_lines_eng[0]);
+
             lang_game_score = TXT_GAME_SCORE_ENG;
             lang_game_bet = TXT_GAME_BET_ENG;
             lang_game_round = TXT_GAME_ROUND_ENG;
@@ -630,6 +614,9 @@ void D_SetLanguageStrings (void)
             lang_title_press_any_key = TXT_TITLE_PRESS_ANY_KEY_RUS;
             lang_title_quote = txt_title_quotes_rus;
             lang_title_quote_size = sizeof(txt_title_quotes_rus) / sizeof(txt_title_quotes_rus[0]);
+
+            lang_help_lines = txt_help_lines_rus;
+            lang_help_lines_count = sizeof(txt_help_lines_rus) / sizeof(txt_help_lines_rus[0]);
 
             lang_game_score = TXT_GAME_SCORE_RUS;
             lang_game_bet = TXT_GAME_BET_RUS;
