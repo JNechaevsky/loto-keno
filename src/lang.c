@@ -45,7 +45,6 @@ char *lang_game_aaa_ooo_ooo;
 char *lang_game_hna;
 
 
-const char *resultQuote = NULL;
 int resultQuoteIndex = -1;
 int resultIsWin = 0; // 1 — выигрыш, 0 — проигрыш
 

@@ -202,7 +202,6 @@ void G_ResetGame (void)
     gameStarted = 0; // [PN] Сбрасываем флаг начала игры
     gameHelp = 0; // [JN] Закрываем экран помощи
     G_GetRandomQuote(1); // [PN] Обновляем цитату при старте новой игры
-    resultQuote = NULL; // [JN] Сбрасываем цитату результата ставки
     resultQuoteIndex = -1;
 }
 
@@ -260,7 +259,6 @@ void G_DetermineResult (void)
     if (score <= 0)
     {
         gameOver = 1;
-        //resultQuote = NULL;
     }
     else
     {
