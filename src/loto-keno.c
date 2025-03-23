@@ -709,7 +709,42 @@ void D_SetLanguageStrings (void)
 #ifdef _WIN32
 LRESULT CALLBACK CustomWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    if (msg == WM_SIZE || msg == WM_SIZING)
+    if (msg == WM_SIZING)
+    {
+        RECT* rect = (RECT*)lParam;
+        int width = rect->right - rect->left;
+        int height = rect->bottom - rect->top;
+
+        // [PN] Соотношение сторон CGA 640x400
+        const float aspectRatio = (float)SCREENWIDTH / (float)SCREENHEIGHT;
+
+        switch (wParam)
+        {
+            case WMSZ_LEFT:
+            case WMSZ_RIGHT:
+                // [PN] Меняем высоту под новую ширину
+                height = (int)(width / aspectRatio);
+                rect->bottom = rect->top + height;
+                break;
+
+            case WMSZ_TOP:
+            case WMSZ_BOTTOM:
+                // [PN] Меняем ширину под новую высоту
+                width = (int)(height * aspectRatio);
+                rect->right = rect->left + width;
+                break;
+
+            default:
+                // [PN] Изменение по диагонали — сохраняем соотношение по высоте
+                width = (int)(height * aspectRatio);
+                rect->right = rect->left + width;
+                break;
+        }
+
+        return TRUE;
+    }
+
+    if (msg == WM_SIZE)
     {
         // [PN] Принудительная перерисовка окна при изменении размеров
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
