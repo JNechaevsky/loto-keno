@@ -247,7 +247,10 @@ static void HandleKeyboardEvents (SDL_Event *event)
     if (!gameStarted)
     {
         if (key == SDLK_ESCAPE) // [PN] Выход из игры
+        {
+            SaveConfig();
             exit(0); 
+        }
 
         gameStarted = 1; // [PN] Стартуем игру
         G_StartNewRound();
@@ -400,6 +403,48 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 }
 #endif
 
+static void LoadConfig (void)
+{
+#ifdef _WIN32
+    FILE *f = fopen("loto-keno.ini", "r");
+
+    // [PN] Файл не найден — создаём с дефолтными значениями
+    if (!f)
+    {
+        language = 0;
+        fullscreen = 0;
+        return;
+    }
+
+    char key[64];
+    int value;
+
+    while (fscanf(f, "%63s %d", key, &value) == 2)
+    {
+        if (strcmp(key, "language") == 0)       language = value;
+        if (strcmp(key, "fullscreen") == 0)     fullscreen = value;
+    }
+
+    fclose(f);
+#endif
+}
+
+static void SaveConfig (void)
+{
+#ifdef _WIN32
+    FILE *f = fopen("loto-keno.ini", "w");
+
+    if (!f)
+    {
+        return;
+    }
+
+    fprintf(f, "language    %d\n",   language);
+    fprintf(f, "fullscreen  %d\n",   fullscreen);
+    fclose(f);
+#endif
+}
+
 
 int main (int argc, char *argv[])
 {
@@ -429,8 +474,13 @@ int main (int argc, char *argv[])
     }
 #endif
 
+    LoadConfig();
+
     window_flags = SDL_WINDOW_RESIZABLE;
     window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+    if (fullscreen)
+    window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+
     window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, window_flags);
 
     // [JN] Минимальный размер окна
@@ -468,6 +518,8 @@ int main (int argc, char *argv[])
     SDL_DestroyWindow(window);
     TTF_Quit();
     SDL_Quit();
+    
+    SaveConfig();
     
     return 0;
 }

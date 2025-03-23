@@ -151,3 +151,5 @@ extern int gameHelp;
 
 extern int isHoveringLeft;
 extern int isHoveringRight;
+
+static void SaveConfig (void);
