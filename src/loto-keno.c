@@ -60,6 +60,16 @@
 #include "font.h"
 #include "lang.h"
 
+// [PN] Поддержка мгновенной отрисовки во время ресайза окна (WinAPI)
+#ifdef _WIN32
+#define SDL_MAIN_HANDLED
+#include <windows.h>
+#include <SDL_syswm.h>
+// [PN] Переменные для WinAPI-хака
+static WNDPROC originalWndProc = NULL;
+static HWND hwnd = NULL;
+#endif
+
 
 // Window size, representing CGA 320x200 mode (2x)
 #define SCREENWIDTH     640
@@ -696,6 +706,31 @@ void D_SetLanguageStrings (void)
 // Main program loop.
 // -----------------------------------------------------------------------------
 
+#ifdef _WIN32
+LRESULT CALLBACK CustomWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (msg == WM_SIZE || msg == WM_SIZING)
+    {
+        // [PN] Принудительная перерисовка окна при изменении размеров
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        if (gameHelp)
+            D_DrawHelpScreen();
+        else if (!gameStarted)
+            D_DrawTitleScreen();
+        else if (gameOver)
+            D_DrawGameOverScreen();
+        else
+            D_DrawGameField();
+
+        SDL_RenderPresent(renderer);
+    }
+
+    return CallWindowProc(originalWndProc, hwnd, msg, wParam, lParam);
+}
+#endif
+
 int main (int argc, char *argv[])
 {
     int window_flags = 0, renderer_flags = 0;
@@ -708,6 +743,19 @@ int main (int argc, char *argv[])
     window_flags = SDL_WINDOW_RESIZABLE;
     window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
     window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, window_flags);
+
+    // [JN] Минимальный размер окна
+    SDL_SetWindowMinimumSize(window, SCREENWIDTH/2, SCREENHEIGHT/2);
+
+#ifdef _WIN32
+    // [PN] Получаем HWND окна SDL и заменяем оконную процедуру на свою
+    SDL_SysWMinfo wminfo;
+    SDL_VERSION(&wminfo.version);
+    if (SDL_GetWindowWMInfo(window, &wminfo)) {
+        hwnd = wminfo.info.win.window;
+        originalWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWndProc);
+    }
+#endif
 
     renderer_flags = SDL_RENDERER_TARGETTEXTURE;
     renderer_flags |= SDL_RENDERER_PRESENTVSYNC;
@@ -736,8 +784,6 @@ int main (int argc, char *argv[])
 }
 
 #ifdef _WIN32
-#include <windows.h>
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     return main(__argc, __argv);
