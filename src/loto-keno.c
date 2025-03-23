@@ -75,6 +75,7 @@ SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 
 int fullscreen = 0;
+int screen_visible = 1;
 
 int isHoveringLeft;
 int isHoveringRight;
@@ -553,6 +554,24 @@ void HandleKeyboardEvents (SDL_Event *event)
     }
 }
 
+void HandleWindowEvents (SDL_WindowEvent *event)
+{
+    if (event->type == SDL_WINDOWEVENT)
+    {
+        switch (event->event)
+        {
+            case SDL_WINDOWEVENT_MINIMIZED:
+                screen_visible = 0;
+                break;
+    
+            case SDL_WINDOWEVENT_RESTORED:
+            case SDL_WINDOWEVENT_SHOWN:
+                screen_visible = 1;
+                break;
+        }
+    }
+}
+
 // -----------------------------------------------------------------------------
 // D_KenoLoop
 //  Главный цикл игры.
@@ -573,21 +592,27 @@ void D_KenoLoop (void)
 
             HandleMouseEvents(&event);
             HandleKeyboardEvents(&event);
+            HandleWindowEvents(&event.window);
         }
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
+        // [JN] Не выполнять функции отрисовки если окно свёрнуто.
+        if (screen_visible)
+        {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
 
-        if (gameHelp)
-            D_DrawHelpScreen();
-        else if (!gameStarted)
-            D_DrawTitleScreen();
-        else if (gameOver)
-            D_DrawGameOverScreen();
-        else
-            D_DrawGameField();
+            if (gameHelp)
+                D_DrawHelpScreen();
+            else if (!gameStarted)
+                D_DrawTitleScreen();
+            else if (gameOver)
+                D_DrawGameOverScreen();
+            else
+                D_DrawGameField();
 
-        SDL_RenderPresent(renderer);
+            SDL_RenderPresent(renderer);
+        }
+
         // [PN] Игра работает с фиксированной частотой 35 кадров в секунду — как в классическом Doom.
         // Задержка между кадрами вычисляется как 1000 мс / 35 ≈ 28.57 мс.
         // Мы используем SDL_Delay(28), чтобы поддерживать стабильный FPS и снизить нагрузку на процессор.
