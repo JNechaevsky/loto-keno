@@ -440,6 +440,32 @@ void D_DrawGameField (void)
     }
 }
 
+// -----------------------------------------------------------------------------
+// R_FinishUpdate
+//  Вызов функций отрисовки и осуществление блиттинга, если окно не свёрнуто.
+// -----------------------------------------------------------------------------
+
+void R_FinishUpdate (void)
+{
+    // [JN] Не выполнять функции отрисовки если окно свёрнуто.
+    if (screen_visible)
+    {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        if (gameHelp)
+            D_DrawHelpScreen();
+        else if (!gameStarted)
+            D_DrawTitleScreen();
+        else if (gameOver)
+            D_DrawGameOverScreen();
+        else
+            D_DrawGameField();
+
+        SDL_RenderPresent(renderer);
+    }
+}
+
 // Обработка событий мыши
 void HandleMouseEvents (SDL_Event *event)
 {
@@ -605,23 +631,7 @@ void D_KenoLoop (void)
             HandleWindowEvents(&event.window);
         }
 
-        // [JN] Не выполнять функции отрисовки если окно свёрнуто.
-        if (screen_visible)
-        {
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            SDL_RenderClear(renderer);
-
-            if (gameHelp)
-                D_DrawHelpScreen();
-            else if (!gameStarted)
-                D_DrawTitleScreen();
-            else if (gameOver)
-                D_DrawGameOverScreen();
-            else
-                D_DrawGameField();
-
-            SDL_RenderPresent(renderer);
-        }
+        R_FinishUpdate();
 
         // [PN] Игра работает с фиксированной частотой 35 кадров в секунду — как в классическом Doom.
         // Задержка между кадрами вычисляется как 1000 мс / 35 ≈ 28.57 мс.
@@ -747,19 +757,7 @@ LRESULT CALLBACK CustomWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     if (msg == WM_SIZE)
     {
         // [PN] Принудительная перерисовка окна при изменении размеров
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        if (gameHelp)
-            D_DrawHelpScreen();
-        else if (!gameStarted)
-            D_DrawTitleScreen();
-        else if (gameOver)
-            D_DrawGameOverScreen();
-        else
-            D_DrawGameField();
-
-        SDL_RenderPresent(renderer);
+        R_FinishUpdate();
     }
 
     return CallWindowProc(originalWndProc, hwnd, msg, wParam, lParam);
