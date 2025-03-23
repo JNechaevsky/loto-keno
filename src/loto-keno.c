@@ -22,6 +22,11 @@
 // SOFTWARE.
 
 
+// Компиляция под Windows / MSYS (GCC):
+//   windres loto-keno.rc -o loto-keno.o
+//     gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe  \
+//     -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lgdi32 -mwindows
+//
 // Компиляция под Windows / MSYS (CMake):
 //   Быстрая конфигурация:
 //     cmake -G "Ninja" -D CMAKE_BUILD_TYPE="Release" -S . -B build
@@ -31,11 +36,14 @@
 //     -fomit-frame-pointer -funroll-loops -DNDEBUG" -S . -B build
 //   Компиляция:
 //     cmake --build build
-// 
-// Компиляция под Windows / MSYS (GCC):
-//   windres loto-keno.rc -o loto-keno.o
-//     gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe  \
-//     -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lgdi32 -mwindows
+//
+// Компиляция под Windows / Build Tools + VCPKG:
+//   Конфигурация:
+//     make -B build_vs_64 -G "Ninja" -DCMAKE_BUILD_TYPE=Release \
+//     DCMAKE_TOOLCHAIN_FILE=R:/VCPKG/scripts/buildsystems/vcpkg.cmake \
+//     DCMAKE_PREFIX_PATH=R:/VCPKG/installed/x64-windows
+//   Компиляция:
+//     cmake --build build_vs_64 --config Release --parallel
 //
 // Компиляция под Linux:
 //   gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe \
