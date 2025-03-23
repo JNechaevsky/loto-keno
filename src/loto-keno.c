@@ -22,12 +22,24 @@
 // SOFTWARE.
 
 
-// Компиляция под Windows / MSYS:
-//  windres loto-keno.rc -o loto-keno.o 
-//  gcc -O3 -s loto-keno.c loto-keno.o -o loto-keno.exe -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lgdi32 -mwindows
+// Компиляция под Windows / MSYS (CMake):
+//   Быстрая конфигурация:
+//     cmake -G "Ninja" -D CMAKE_BUILD_TYPE="Release" -S . -B build
+//   Оптимизированная конфигурация:
+//     cmake -G "Ninja" -D CMAKE_BUILD_TYPE="Release" -D \
+//     CMAKE_C_FLAGS_RELEASE="-O3 -s -flto -fno-math-errno \
+//     -fomit-frame-pointer -funroll-loops -DNDEBUG" -S . -B build
+//   Компиляция:
+//     cmake --build build
+// 
+// Компиляция под Windows / MSYS (GCC):
+//   windres loto-keno.rc -o loto-keno.o
+//     gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe  \
+//     -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lgdi32 -mwindows
 //
 // Компиляция под Linux:
-//  gcc -O3 -s loto-keno.c -o loto-keno -lSDL2main -lSDL2 -lSDL2_ttf
+//   gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe \
+//   -lSDL2main -lSDL2 -lSDL2_ttf
 
 
 #include <SDL2/SDL.h>
@@ -37,8 +49,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "font.c"
-#include "lang.c"
+#include "font.h"
+#include "lang.h"
 
 
 // Window size, representing CGA 320x200 mode (2x)
@@ -689,3 +701,12 @@ int main (int argc, char *argv[])
     
     return 0;
 }
+
+#ifdef _WIN32
+#include <windows.h>
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+    return main(__argc, __argv);
+}
+#endif
