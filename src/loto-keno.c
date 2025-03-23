@@ -348,42 +348,45 @@ static LRESULT CALLBACK CustomWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 {
     if (msg == WM_SIZING)
     {
-        RECT* rect = (RECT*)lParam;
-        int width = rect->right - rect->left;
-        int height = rect->bottom - rect->top;
+        RECT *rect = (RECT *)lParam;
 
-        // [PN] Соотношение сторон CGA 640x400
-        const float aspectRatio = (float)SCREENWIDTH / (float)SCREENHEIGHT;
+        // [PN] Размер рамки окна (заголовок и бордеры)
+        RECT frameRect = { 0, 0, SCREENWIDTH, SCREENHEIGHT };
+        AdjustWindowRect(&frameRect, GetWindowLong(hwnd, GWL_STYLE), FALSE);
+        const int frameWidth  = (frameRect.right - frameRect.left) - SCREENWIDTH;
+        const int frameHeight = (frameRect.bottom - frameRect.top) - SCREENHEIGHT;
+
+        // [PN] Вычисляем новое соотношение
+        const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
+        int newWidth  = rect->right - rect->left - frameWidth;
+        int newHeight = rect->bottom - rect->top - frameHeight;
 
         switch (wParam)
         {
             case WMSZ_LEFT:
             case WMSZ_RIGHT:
-                // [PN] Меняем высоту под новую ширину
-                height = (int)(width / aspectRatio);
-                rect->bottom = rect->top + height;
+                newHeight = (int)(newWidth / aspect);
                 break;
 
             case WMSZ_TOP:
             case WMSZ_BOTTOM:
-                // [PN] Меняем ширину под новую высоту
-                width = (int)(height * aspectRatio);
-                rect->right = rect->left + width;
+                newWidth = (int)(newHeight * aspect);
                 break;
 
             default:
-                // [PN] Изменение по диагонали — сохраняем соотношение по высоте
-                width = (int)(height * aspectRatio);
-                rect->right = rect->left + width;
+                newHeight = (int)(newWidth / aspect);
                 break;
         }
+
+        // [PN] Применяем с учётом рамки
+        rect->right  = rect->left + newWidth  + frameWidth;
+        rect->bottom = rect->top  + newHeight + frameHeight;
 
         return TRUE;
     }
 
     if (msg == WM_SIZE)
     {
-        // [PN] Принудительная перерисовка окна при изменении размеров
         screen_refresh = 1;
         R_FinishUpdate();
     }
