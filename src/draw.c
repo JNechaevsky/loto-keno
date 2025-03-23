@@ -202,7 +202,7 @@ static void R_DrawGameOverScreen (void)
 
 void R_FinishUpdate (void)
 {
-    if (screen_visible)
+    if (screen_refresh && screen_visible)
     {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -217,5 +217,9 @@ void R_FinishUpdate (void)
             R_DrawGameField();
 
         SDL_RenderPresent(renderer);
+
+        // [JN] Отрисовка завершена, не осуществлять перерисовку
+        // до следующего нажатия клавиш или действия мышью.
+        screen_refresh = 0;
     }
 }

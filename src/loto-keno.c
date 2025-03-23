@@ -71,6 +71,8 @@ SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 
 int fullscreen = 0;
+
+int screen_refresh = 1;
 int screen_visible = 1;
 
 int isHoveringLeft;
@@ -147,10 +149,18 @@ static void HandleMouseEvents (SDL_Event *event)
 {
     static int mousePressed = 0; // [PN] Отслеживание нажатия кнопки мыши
 
+    if (event->type == SDL_MOUSEMOTION || event->type == SDL_MOUSEBUTTONDOWN)
+    {
+        // [PN] Обновить экран при движении мыши или нажатии кнопки
+        screen_refresh = 1;
+    }
+
     if (event->type == SDL_MOUSEWHEEL && gameStarted && !gameOver)
     {
         bet += (event->wheel.y > 0 && bet < score) ? 1 : 0; // [PN] Увеличиваем ставку
         bet -= (event->wheel.y < 0 && bet > 1) ? 1 : 0;     // [PN] Уменьшаем ставку
+        // [JN] Обновить экран при активации колёсика мыши
+        screen_refresh = 1;
     }
 
     if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && !mousePressed)
@@ -204,6 +214,9 @@ static void HandleKeyboardEvents (SDL_Event *event)
 
     SDL_Keycode key = event->key.keysym.sym;
     const Uint16 mod = event->key.keysym.mod;
+
+    // [JN] Нажатие любой клавиши перерисовывает экран.
+    screen_refresh = 1;
 
     if ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && (mod & KMOD_ALT))
     {
@@ -371,6 +384,7 @@ static LRESULT CALLBACK CustomWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     if (msg == WM_SIZE)
     {
         // [PN] Принудительная перерисовка окна при изменении размеров
+        screen_refresh = 1;
         R_FinishUpdate();
     }
 
@@ -392,6 +406,25 @@ int main (int argc, char *argv[])
     {
         return 1;
     }
+
+    // [JN/PN] Создание консольного окна для вывода, если
+    // предоставлен параметр коммандной строки "-console".
+#ifdef _WIN32
+    for (int i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "-console") == 0)
+        {
+            AllocConsole();
+            SetConsoleTitle("Console");
+            freopen("CONIN$", "r", stdin);
+            freopen("CONOUT$", "w", stdout);
+            freopen("CONOUT$", "w", stderr);
+            SetConsoleOutputCP(CP_UTF8);
+            SetConsoleCP(CP_UTF8);
+            break;
+        }
+    }
+#endif
 
     window_flags = SDL_WINDOW_RESIZABLE;
     window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;

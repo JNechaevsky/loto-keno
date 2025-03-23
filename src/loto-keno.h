@@ -57,7 +57,6 @@ extern unsigned char ibm_vga_data[];
 
 extern void G_StartNewRound (void);
 extern void G_ResetGame (void);
-extern void G_StartNewRound (void);
 extern void G_DetermineResult (void);
 
 extern const char *G_GetTitleQuote (int randomize);
@@ -492,6 +491,7 @@ extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 extern TTF_Font *font;
 
+extern int screen_refresh;
 extern int screen_visible;
 
 extern SDL_Color white;
