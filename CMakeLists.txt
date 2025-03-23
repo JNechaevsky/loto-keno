@@ -19,15 +19,16 @@ endif()
 # Исходные файлы
 set(SOURCES
     src/loto-keno.c
+    src/draw.c
     src/font.c
+    src/game.c
     src/lang.c
     src/loto-keno.rc
 )
 
 # Заголовки (для IDE и порядка)
 set(HEADERS
-    src/font.h
-    src/lang.h
+    src/loto-keno.h
 )
 
 # Исполняемый файл

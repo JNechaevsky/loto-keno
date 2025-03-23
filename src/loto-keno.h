@@ -22,8 +22,55 @@
 // SOFTWARE.
 
 
+#pragma once
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+
+// =============================================================================
+//
+// DRAW.C
+//
+// =============================================================================
+
+extern void R_FinishUpdate (void);
+
+// =============================================================================
+//
+// FONT.C
+//
+// =============================================================================
+
+extern unsigned int  ibm_vga_data_len;
+extern unsigned char ibm_vga_data[];
+
+// =============================================================================
+//
+// GAME.C
+//
+// =============================================================================
+
+extern void G_StartNewRound (void);
+extern void G_ResetGame (void);
+extern void G_StartNewRound (void);
+extern void G_DetermineResult (void);
+
+extern const char *G_GetTitleQuote (int randomize);
+
+// =============================================================================
+//
+// LANG.C
+//
+// =============================================================================
+
+extern void L_SetLanguageStrings (void);
+
 // Title screen
-extern void D_SetLanguageStrings (void);
 extern const char *lang_title_name;
 extern const char *lang_title_version;
 extern const char *lang_title_developed_by;
@@ -61,7 +108,6 @@ extern const char *lang_over_game;
 extern const char *lang_over_rounds;
 extern const char *lang_over_max_score;
 extern const char *lang_over_enter;
-
 
 // -----------------------------------------------------------------------------
 // English language
@@ -427,3 +473,47 @@ static const char *txt_game_loose_quotes_rus[] = {
 #define TXT_OVER_ROUNDS_RUS         "        Сыграно раундов:"
 #define TXT_OVER_MAX_SCORE_RUS      "   Максимальный выигрыш:"
 #define TXT_OVER_ENTER_RUS          "Нажмите ENTER для перезапуска"
+
+// =============================================================================
+//
+// LOTO-KENO.C
+//
+// =============================================================================
+
+// Window size, representing CGA 320x200 mode (2x)
+#define SCREENWIDTH     640
+#define SCREENHEIGHT    400
+// The size of the monospacing font (2x as well)
+#define FONT_SIZE       16
+// 1 in 10 chance of a samurai
+#define SAMURAI_CHANCE  10 
+
+extern SDL_Window *window;
+extern SDL_Renderer *renderer;
+extern TTF_Font *font;
+
+extern int screen_visible;
+
+extern SDL_Color white;
+extern SDL_Color black;
+extern SDL_Color cyan;
+extern SDL_Color magenta;
+extern SDL_Color gray;
+extern SDL_Color yellow;
+extern SDL_Color blue;
+extern SDL_Color red;
+extern SDL_Color resultColor;
+
+extern int language;
+extern int score;
+extern int maxScore;
+extern int bet;
+extern int rounds;
+extern int choice;
+extern int samuraiAppeared;
+extern int gameOver;
+extern int gameStarted;
+extern int gameHelp;
+
+extern int isHoveringLeft;
+extern int isHoveringRight;

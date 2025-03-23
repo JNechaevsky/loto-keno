@@ -50,15 +50,8 @@
 //   -lSDL2main -lSDL2 -lSDL2_ttf
 
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include "loto-keno.h"
 
-#include "font.h"
-#include "lang.h"
 
 // [PN] Поддержка мгновенной отрисовки во время ресайза окна (WinAPI)
 #ifdef _WIN32
@@ -71,13 +64,6 @@ static HWND hwnd = NULL;
 #endif
 
 
-// Window size, representing CGA 320x200 mode (2x)
-#define SCREENWIDTH     640
-#define SCREENHEIGHT    400
-// The size of the monospacing font (2x as well)
-#define FONT_SIZE       16
-// 1 in 10 chance of a samurai
-#define SAMURAI_CHANCE  10 
 
 
 SDL_Window *window = NULL;
@@ -152,322 +138,12 @@ SDL_Color yellow = {255, 255, 85, 255};
 */
 
 
-
-
 // -----------------------------------------------------------------------------
-// R_DrawText
-//  Draw text string.
+// HandleMouseEvents
+//  Обработка событий мыши.
 // -----------------------------------------------------------------------------
 
-void R_DrawText (const char *text, int x, int y, SDL_Color color)
-{
-    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, text, color);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_Rect dest = {x, y, surface->w, surface->h};
-    SDL_RenderCopy(renderer, texture, NULL, &dest);
-    SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
-}
-
-// -----------------------------------------------------------------------------
-// R_DrawTextCentered
-//  Draw centerered text string.
-// -----------------------------------------------------------------------------
-
-void R_DrawTextCentered (const char *text, int y, SDL_Color color)
-{
-    SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_Rect dest = { (SCREENWIDTH - surface->w) / 2, y, surface->w, surface->h };
-    SDL_RenderCopy(renderer, texture, NULL, &dest);
-    SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
-}
-
-
-
-// -----------------------------------------------------------------------------
-// G_GetRandomQuote
-//  Возвращает случайную цитату из списка.
-// -----------------------------------------------------------------------------
-
-const char *G_GetRandomQuote (int randomize)
-{
-    static int randomQuoteIndex = 0;
-
-    if (randomize)
-        randomQuoteIndex = rand() % lang_title_quote_size;
-
-    return lang_title_quote[randomQuoteIndex];
-}
-
-const char *G_GetWinQuote (int randomize)
-{
-    static int randomWinQuoteIndex = 0;
-
-    if (randomize)
-        randomWinQuoteIndex = rand() % lang_game_quote_win_size;
-
-    return lang_game_win_quote[randomWinQuoteIndex];
-}
-
-const char *G_GetLooseQuote (int randomize)
-{
-    static int randomLooseQuoteIndex = 0;
-
-    if (randomize)
-        randomLooseQuoteIndex = rand() % lang_game_quote_loose_size;
-
-    return lang_game_loose_quote[randomLooseQuoteIndex];
-}
-
-// -----------------------------------------------------------------------------
-// G_ResetGame
-//  Сброс состояния игры
-// -----------------------------------------------------------------------------
-
-void G_ResetGame (void)
-{
-    score = maxScore = 10; // [PN] Сбрасываем счёт и максимальный счёт до начальных значений
-    bet = 1; // [PN] Сбрасываем ставку
-    rounds = 0; // [JN] Обнуляем счётчик раундов
-    gameOver = 0; // [PN] Сбрасываем флаг окончания игры
-    gameStarted = 0; // [PN] Сбрасываем флаг начала игры
-    gameHelp = 0; // [JN] Закрываем экран помощи
-    G_GetRandomQuote(1); // [PN] Обновляем цитату при старте новой игры
-    resultQuoteIndex = -1;
-}
-
-// -----------------------------------------------------------------------------
-// G_DetermineResult
-//  Start new round.
-// -----------------------------------------------------------------------------
-
-void G_StartNewRound (void)
-{
-    // [PN] 1 к 10 шанс появления самурая в начале раунда
-    samuraiAppeared = (rand() % SAMURAI_CHANCE == 0);
-    // [PN] Clear bet's choice
-    choice = 0;
-    // [JN] Increment round counter.
-    rounds++;
-}
-
-// -----------------------------------------------------------------------------
-// G_DetermineResult
-//  Determine result of current round.
-// -----------------------------------------------------------------------------
-
-void G_DetermineResult (void)
-{
-    const int randomNumber = rand() % 100; // [PN] Число от 0 до 99
-    const int isEven = (randomNumber % 2 == 0);
-    const int win = (choice == 1 && isEven) || (choice == 2 && !isEven);
-    
-    if (win)
-    {
-        score += bet * (samuraiAppeared ? 2 : 1);
-        // [PN] Обновляем maxScore, если score стал больше него:
-        if (score > maxScore)
-        {
-            maxScore = score;
-        }
-        resultColor = blue;
-        resultQuoteIndex = rand() % lang_game_quote_win_size;
-        resultIsWin = 1; // [PN] 💙 вот это важно!
-    }
-    else
-    {
-        score -= bet * (samuraiAppeared ? 2 : 1);
-        // [JN] В случае проигрыша, ставка не должна превышать текущий счёт!
-        if (bet > score)
-        {
-            bet = score;
-        }
-        resultColor = red;
-        resultQuoteIndex = rand() % lang_game_quote_loose_size;
-        resultIsWin = 0; // [PN] ❤️ и это тоже!
-    }
-    
-    if (score <= 0)
-    {
-        gameOver = 1;
-    }
-    else
-    {
-        G_StartNewRound();
-    }
-}
-
-
-
-// -----------------------------------------------------------------------------
-// D_DrawTitleScreen
-//  Draw title screen.
-// -----------------------------------------------------------------------------
-
-void D_DrawTitleScreen (void)
-{
-    R_DrawTextCentered("╔══════════════════════╗", 16, white);
-    R_DrawTextCentered("║                      ║", 32, white);
-    R_DrawTextCentered("║                      ║", 48, white);
-    R_DrawTextCentered("║                      ║", 64, white);
-    R_DrawTextCentered("╚══════════════════════╝", 80, white);
-    R_DrawTextCentered(lang_title_name, 48, white);
-    R_DrawTextCentered(lang_title_version, 112, magenta);
-    R_DrawTextCentered(G_GetRandomQuote(0), 144, magenta);
-
-    R_DrawTextCentered(lang_title_developed_by, 192, white);
-    R_DrawTextCentered(lang_title_authors, 224, magenta);
-
-    R_DrawText(lang_title_key_f1, 160, 288, white);
-    R_DrawText(lang_title_key_f2, 160, 320, white);
-
-    R_DrawTextCentered(lang_title_press_any_key, 368, white);
-}
-
-// -----------------------------------------------------------------------------
-// D_DrawHelpScreen
-//  Draw help screen.
-//  [JN] TODO - do not invoke again if we already in help screen.
-// -----------------------------------------------------------------------------
-
-void D_DrawHelpScreen (void)
-{
-    for (int i = 0; i < lang_help_lines_count; i++)
-    {
-        R_DrawText(lang_help_lines[i], 16, 16 + i * 16, white);
-    }
-}
-
-// -----------------------------------------------------------------------------
-// D_DrawGameOverScreen
-//  Draw game over screen.
-// -----------------------------------------------------------------------------
-
-void D_DrawGameOverScreen (void)
-{
-    R_DrawTextCentered(lang_over_game, 160, white);
-
-    char roundsText[64];
-    sprintf(roundsText, "%s %d", lang_over_rounds, rounds);
-    R_DrawText(roundsText, 64, 192, white);
-    
-    char scoreText[64];
-    sprintf(scoreText, "%s %d", lang_over_max_score, maxScore);
-    R_DrawText(scoreText, 64, 224, white);
-
-    R_DrawTextCentered(lang_over_enter, 304, cyan);
-}
-
-// -----------------------------------------------------------------------------
-// D_DrawGameField
-//  Draw main game field.
-// -----------------------------------------------------------------------------
-
-void D_DrawGameField (void)
-{
-    R_DrawTextCentered("╔══════════════════════╗",  16, white);
-    R_DrawTextCentered("║                      ║",  32, white);
-    R_DrawTextCentered("║                      ║",  48, white);
-    R_DrawTextCentered("║                      ║",  64, white);
-    R_DrawTextCentered("║                      ║",  80, white);
-    R_DrawTextCentered("║                      ║",  96, white);
-    R_DrawTextCentered("║                      ║", 112, white);
-    R_DrawTextCentered("║                      ║", 128, white);
-    R_DrawTextCentered("╚══════════════════════╝", 144, white);
-
-    R_DrawText(lang_game_score, 144, 48, white);
-    char scoreText[32];
-    sprintf(scoreText, "%d", score);
-    R_DrawText(scoreText, 352, 48, white);
-
-    R_DrawText(lang_game_bet, 144, 80, white);
-    char betText[32];
-    sprintf(betText, "%d", bet);
-    R_DrawText(betText, 352, 80, white);
-
-    R_DrawText(lang_game_round, 144, 112, white);
-    char roundText[32];
-    sprintf(roundText, "%d", rounds);
-    R_DrawText(roundText, 352, 112, white);
-
-    // [PN] Обработка событий мыши
-    int realX, realY;
-    float mouseX, mouseY;
-    SDL_GetMouseState(&realX, &realY);
-    SDL_RenderWindowToLogical(renderer, (float)realX, (float)realY, &mouseX, &mouseY);
-
-    isHoveringLeft = (mouseX >= 16 && mouseX <= 320 && mouseY >= 176 && mouseY <= 256);
-    isHoveringRight = (mouseX >= 336 && mouseX <= 624 && mouseY >= 176 && mouseY <= 256);
-    const SDL_Color left_color = (isHoveringLeft || choice == 1) ? white : magenta;
-    const SDL_Color right_color = (isHoveringRight || choice == 2) ? white : magenta;
-
-    R_DrawText("┌─────────────────┐", 16, 176, left_color);
-    R_DrawText("│                 │", 16, 192, left_color);
-    R_DrawText("│                 │", 16, 208, left_color);
-    R_DrawText("│                 │", 16, 224, left_color);
-    R_DrawText("└─────────────────┘", 16, 240, left_color);
-
-    R_DrawText(lang_game_bud_bud_bud, 48, 208, left_color);
-
-    R_DrawText("┌────────────────┐", 336, 176, right_color);
-    R_DrawText("│                │", 336, 192, right_color);
-    R_DrawText("│                │", 336, 208, right_color);
-    R_DrawText("│                │", 336, 224, right_color);
-    R_DrawText("└────────────────┘", 336, 240, right_color);
-
-    R_DrawText(lang_game_aaa_ooo_ooo, 368, 208, right_color);
-
-    if (samuraiAppeared)
-    {
-        R_DrawTextCentered("╔══════════╗", 272, yellow);
-        R_DrawTextCentered("║          ║", 288, yellow);
-        R_DrawTextCentered("║          ║", 304, yellow);
-        R_DrawTextCentered("║          ║", 320, yellow);
-        R_DrawTextCentered("╚══════════╝", 336, yellow);
-        R_DrawTextCentered(lang_game_hna, 304, yellow);
-    }
-
-    // [JN] TODO - Switch between 4 / 16 colors?
-    if (resultQuoteIndex >= 0)
-    {
-        const char *quote = resultIsWin
-            ? lang_game_win_quote[resultQuoteIndex]
-            : lang_game_loose_quote[resultQuoteIndex];
-    
-        R_DrawTextCentered(quote, 368, resultColor);
-    }
-}
-
-// -----------------------------------------------------------------------------
-// R_FinishUpdate
-//  Вызов функций отрисовки и осуществление блиттинга, если окно не свёрнуто.
-// -----------------------------------------------------------------------------
-
-void R_FinishUpdate (void)
-{
-    // [JN] Не выполнять функции отрисовки если окно свёрнуто.
-    if (screen_visible)
-    {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        if (gameHelp)
-            D_DrawHelpScreen();
-        else if (!gameStarted)
-            D_DrawTitleScreen();
-        else if (gameOver)
-            D_DrawGameOverScreen();
-        else
-            D_DrawGameField();
-
-        SDL_RenderPresent(renderer);
-    }
-}
-
-// Обработка событий мыши
-void HandleMouseEvents (SDL_Event *event)
+static void HandleMouseEvents (SDL_Event *event)
 {
     static int mousePressed = 0; // [PN] Отслеживание нажатия кнопки мыши
 
@@ -516,10 +192,15 @@ void HandleMouseEvents (SDL_Event *event)
     }
 }
 
-// Обработка событий клавиатуры
-void HandleKeyboardEvents (SDL_Event *event)
+// -----------------------------------------------------------------------------
+// HandleMouseEvents
+//  Обработка событий клавиатуры.
+// -----------------------------------------------------------------------------
+
+static void HandleKeyboardEvents (SDL_Event *event)
 {
-    if (event->type != SDL_KEYDOWN) return;
+    if (event->type != SDL_KEYDOWN)
+        return;
 
     SDL_Keycode key = event->key.keysym.sym;
     const Uint16 mod = event->key.keysym.mod;
@@ -531,29 +212,29 @@ void HandleKeyboardEvents (SDL_Event *event)
         SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
     }
 
-    if (key == SDLK_F1)
+    if (key == SDLK_F1)  // [JN] Открытие экрана помощи
     {
-        gameHelp ^= 1; // [JN] Переключаем экран помощи
+        gameHelp ^= 1;
         return;
     }
 
-    if (key == SDLK_F2)
+    if (key == SDLK_F2)  // [JN] Смена языка
     {
-        language ^= 1; // [JN] Смена языка
-        D_SetLanguageStrings();
+        language ^= 1;
+        L_SetLanguageStrings();
         return;
     }
 
-    if (gameHelp)
+    if (gameHelp)  // [JN] Закрытие экрана помощи
     {
-        gameHelp = 0; // [JN] Закрываем экран помощи
+        gameHelp = 0;
         return;
     }
 
     if (!gameStarted)
     {
-        if (key == SDLK_ESCAPE)
-            exit(0); // [PN] Выход из игры
+        if (key == SDLK_ESCAPE) // [PN] Выход из игры
+            exit(0); 
 
         gameStarted = 1; // [PN] Стартуем игру
         G_StartNewRound();
@@ -590,7 +271,12 @@ void HandleKeyboardEvents (SDL_Event *event)
     }
 }
 
-void HandleWindowEvents (SDL_WindowEvent *event)
+// -----------------------------------------------------------------------------
+// HandleWindowEvents
+//  Обработка событий окна.
+// -----------------------------------------------------------------------------
+
+static void HandleWindowEvents (SDL_WindowEvent *event)
 {
     if (event->type == SDL_WINDOWEVENT)
     {
@@ -613,7 +299,7 @@ void HandleWindowEvents (SDL_WindowEvent *event)
 //  Главный цикл игры.
 // -----------------------------------------------------------------------------
 
-void D_KenoLoop (void)
+static void D_KenoLoop (void)
 {
     SDL_Event event;
     srand(time(NULL));
@@ -640,84 +326,12 @@ void D_KenoLoop (void)
     }
 }
 
-void D_SetLanguageStrings (void)
-{
-    switch (language)
-    {
-        case 0:  // English
-            SDL_SetWindowTitle(window, TXT_TITLE_NAME_ENG);
-            lang_title_name = TXT_TITLE_NAME_ENG;
-            lang_title_version = TXT_TITLE_VERSION_ENG;
-            lang_title_developed_by = TXT_TITLE_DEVELOPED_BY_ENG;
-            lang_title_authors = TXT_TITLE_AUTHORS_ENG;
-            lang_title_key_f1 = TXT_TITLE_KEY_F1_ENG;
-            lang_title_key_f2 = TXT_TITLE_KEY_F2_ENG;
-            lang_title_press_any_key = TXT_TITLE_PRESS_ANY_KEY_ENG;
-            lang_title_quote = txt_title_quotes_eng;
-            lang_title_quote_size = sizeof(txt_title_quotes_eng) / sizeof(txt_title_quotes_eng[0]);
-            
-            lang_help_lines = txt_help_lines_eng;
-            lang_help_lines_count = sizeof(txt_help_lines_eng) / sizeof(txt_help_lines_eng[0]);
-
-            lang_game_score = TXT_GAME_SCORE_ENG;
-            lang_game_bet = TXT_GAME_BET_ENG;
-            lang_game_round = TXT_GAME_ROUND_ENG;
-            lang_game_bud_bud_bud = TXT_GAME_BUD_BUD_BUD_ENG;
-            lang_game_aaa_ooo_ooo = TXT_GAME_AAA_OOO_OOO_ENG;
-            lang_game_hna = TXT_GAME_HNA_ENG;
-            lang_game_win_quote = txt_game_win_quotes_eng;
-            lang_game_quote_win_size = sizeof(txt_game_win_quotes_eng) / sizeof(txt_game_win_quotes_eng[0]);
-            lang_game_loose_quote = txt_game_loose_quotes_eng;
-            lang_game_quote_loose_size = sizeof(txt_game_loose_quotes_eng) / sizeof(txt_game_loose_quotes_eng[0]);
-
-            lang_over_game = TXT_OVER_GAME_ENG;
-            lang_over_rounds = TXT_OVER_ROUNDS_ENG;
-            lang_over_max_score = TXT_OVER_MAX_SCORE_ENG;
-            lang_over_enter = TXT_OVER_ENTER_ENG;
-            break;
-
-        case 1:  // Русский
-            SDL_SetWindowTitle(window, TXT_TITLE_NAME_RUS);
-            lang_title_name = TXT_TITLE_NAME_RUS;
-            lang_title_version = TXT_TITLE_VERSION_RUS;
-            lang_title_developed_by = TXT_TITLE_DEVELOPED_BY_RUS;
-            lang_title_authors = TXT_TITLE_AUTHORS_RUS;
-            lang_title_key_f1 = TXT_TITLE_KEY_F1_RUS;
-            lang_title_key_f2 = TXT_TITLE_KEY_F2_RUS;
-            lang_title_press_any_key = TXT_TITLE_PRESS_ANY_KEY_RUS;
-            lang_title_quote = txt_title_quotes_rus;
-            lang_title_quote_size = sizeof(txt_title_quotes_rus) / sizeof(txt_title_quotes_rus[0]);
-
-            lang_help_lines = txt_help_lines_rus;
-            lang_help_lines_count = sizeof(txt_help_lines_rus) / sizeof(txt_help_lines_rus[0]);
-
-            lang_game_score = TXT_GAME_SCORE_RUS;
-            lang_game_bet = TXT_GAME_BET_RUS;
-            lang_game_round = TXT_GAME_ROUND_RUS;
-            lang_game_bud_bud_bud = TXT_GAME_BUD_BUD_BUD_RUS;
-            lang_game_aaa_ooo_ooo = TXT_GAME_AAA_OOO_OOO_RUS;
-            lang_game_hna = TXT_GAME_HNA_RUS;
-            lang_game_win_quote = txt_game_win_quotes_rus;
-            lang_game_quote_win_size = sizeof(txt_game_win_quotes_rus) / sizeof(txt_game_win_quotes_rus[0]);
-            lang_game_loose_quote = txt_game_loose_quotes_rus;
-            lang_game_quote_loose_size = sizeof(txt_game_loose_quotes_rus) / sizeof(txt_game_loose_quotes_rus[0]);
-
-            lang_over_game = TXT_OVER_GAME_RUS;
-            lang_over_rounds = TXT_OVER_ROUNDS_RUS;
-            lang_over_max_score = TXT_OVER_MAX_SCORE_RUS;
-            lang_over_enter = TXT_OVER_ENTER_RUS;
-            break;
-    }
-    // [PN] Выбираем новую цитату при смене языка
-    G_GetRandomQuote(0);
-}
-
 // -----------------------------------------------------------------------------
-// Main program loop.
+// Основные циклы программы.
 // -----------------------------------------------------------------------------
 
 #ifdef _WIN32
-LRESULT CALLBACK CustomWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK CustomWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (msg == WM_SIZING)
     {
@@ -762,7 +376,13 @@ LRESULT CALLBACK CustomWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
     return CallWindowProc(originalWndProc, hwnd, msg, wParam, lParam);
 }
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+    return main(__argc, __argv);
+}
 #endif
+
 
 int main (int argc, char *argv[])
 {
@@ -801,9 +421,9 @@ int main (int argc, char *argv[])
     font = TTF_OpenFontRW(rw, 0, FONT_SIZE);
 
     // [JN] Предопределяем языковые строки.
-    D_SetLanguageStrings();
+    L_SetLanguageStrings();
     // [PN] Выбираем первую случайную цитату
-    G_GetRandomQuote(1);
+    G_GetTitleQuote(1);
 
     D_KenoLoop();
     
@@ -815,10 +435,3 @@ int main (int argc, char *argv[])
     
     return 0;
 }
-
-#ifdef _WIN32
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-{
-    return main(__argc, __argv);
-}
-#endif
