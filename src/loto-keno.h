@@ -27,6 +27,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdio.h>
