@@ -2,17 +2,13 @@ cmake_minimum_required(VERSION 3.15)
 
 project(LotoKeno C)
 
-# Стандарт C99
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# Оптимизации по умолчанию
 if (MSVC)
-    # MSVC: /O2 — максимальная оптимизация
     set(CMAKE_C_FLAGS_RELEASE "/MD /O2 /Ob2 /DNDEBUG /GL /Oy")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
 else()
-    # GCC / Clang: максимальные оптимизации + автоинлайн + луп-раскрутка
     set(CMAKE_C_FLAGS_RELEASE "-O3 -s -flto -fno-math-errno -fomit-frame-pointer -funroll-loops -DNDEBUG")
 endif()
 
@@ -37,26 +33,30 @@ add_executable(loto-keno ${SOURCES} ${HEADERS})
 # Пути к заголовкам
 target_include_directories(loto-keno PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# SDL2 и SDL2_ttf через vcpkg
-find_package(SDL2 CONFIG REQUIRED)
-find_package(SDL2_ttf CONFIG REQUIRED)
+# Универсальный поиск SDL2 и SDL2_ttf
+find_package(SDL2 REQUIRED)
 
-# Линкуем библиотеки
-target_link_libraries(loto-keno
-    PRIVATE
-        SDL2::SDL2
-        SDL2::SDL2main
-        SDL2_ttf::SDL2_ttf
-)
+# Явно ищем SDL2_ttf, это нужно для Linux и MinGW/MSYS
+find_path(SDL2_TTF_INCLUDE_DIR SDL_ttf.h PATH_SUFFIXES SDL2)
+find_library(SDL2_TTF_LIBRARY NAMES SDL2_ttf)
 
-# Отключаем консольное окно в Windows
-if (MSVC)
-    set_target_properties(loto-keno PROPERTIES
-        LINK_FLAGS "/SUBSYSTEM:WINDOWS"
-        WIN32_EXECUTABLE YES
-    )
-else()
-    set_target_properties(loto-keno PROPERTIES
-        LINK_FLAGS "-mwindows"
-    )
+if (NOT SDL2_TTF_INCLUDE_DIR OR NOT SDL2_TTF_LIBRARY)
+    message(FATAL_ERROR "SDL2_ttf library not found. Make sure it's installed and available in PATH.")
+endif()
+
+target_include_directories(loto-keno PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2_TTF_INCLUDE_DIR})
+target_link_libraries(loto-keno PRIVATE ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARY})
+
+# Для Windows отключаем консольное окно
+if(WIN32)
+    if (MSVC)
+        set_target_properties(loto-keno PROPERTIES
+            LINK_FLAGS "/SUBSYSTEM:WINDOWS"
+            WIN32_EXECUTABLE YES
+        )
+    else()
+        set_target_properties(loto-keno PROPERTIES
+            LINK_FLAGS "-mwindows"
+        )
+    endif()
 endif()
