@@ -296,11 +296,41 @@ static void HandleWindowEvents (SDL_WindowEvent *event)
                 screen_visible = 1;
                 break;
 
+            case SDL_WINDOWEVENT_RESIZED:
             case SDL_WINDOWEVENT_SIZE_CHANGED:
                 if (!fullscreen)
                 {
-                    window_width = event->data1;
-                    window_height = event->data2;
+                    // [PN] Проверка, максимально ли окно в данный момент:
+                    Uint32 flags = SDL_GetWindowFlags(window);
+                    if (flags & SDL_WINDOW_MAXIMIZED)
+                    {
+                        // [PN] Если окно максимизировано, пропорцию не трогаем,
+                        // просто сохраняем размеры как есть:
+                        window_width = event->data1;
+                        window_height = event->data2;
+                    }
+                    else
+                    {
+                        const float aspect_ratio = (float)SCREENWIDTH / SCREENHEIGHT;
+                        int new_width = event->data1;
+                        int new_height = event->data2;
+                        const int delta_width = abs(new_width - window_width);
+                        const int delta_height = abs(new_height - window_height);
+
+                        if (delta_width > delta_height) // [PN] изменили ширину
+                        {
+                            new_height = (int)(new_width / aspect_ratio);
+                        }
+                        else // [PN] изменили высоту
+                        {
+                            new_width = (int)(new_height * aspect_ratio);
+                        }
+
+                        SDL_SetWindowSize(window, new_width, new_height);
+
+                        window_width = new_width;
+                        window_height = new_height;
+                    }
                 }
                 screen_refresh = 1;
                 break;
