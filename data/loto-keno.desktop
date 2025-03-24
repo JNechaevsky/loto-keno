@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=loto-keno
+Exec=loto-keno %F
+Icon=loto-keno
+TryExec=loto-keno
+Categories=Game;
+MimeType=application/game;

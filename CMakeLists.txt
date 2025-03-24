@@ -20,7 +20,7 @@ set(SOURCES
     src/game.c
     src/icon.c
     src/lang.c
-    src/loto-keno.rc
+    data/loto-keno.rc
 )
 
 # Заголовки (для IDE и порядка)
