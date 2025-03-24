@@ -18,6 +18,7 @@ set(SOURCES
     src/draw.c
     src/font.c
     src/game.c
+    src/icon.c
     src/lang.c
     src/loto-keno.rc
 )

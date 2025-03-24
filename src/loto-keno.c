@@ -51,6 +51,7 @@
 
 
 #include "loto-keno.h"
+#include "icon.c"
 
 
 SDL_Window *window = NULL;
@@ -467,6 +468,18 @@ int main (int argc, char *argv[])
 
     window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
                               window_width, window_height, window_flags);
+
+    // [JN] Присвоение иконки для окна.
+    // Не требуется для Windows, т.к. используется .ico файл из loto-keno.rc
+#ifndef _WIN32
+    SDL_Surface *surface = SDL_CreateRGBSurfaceFrom((void *) icon_data, icon_w, icon_h,
+                                                    32, icon_w * 4,
+                                                    0xffu << 24, 0xffu << 16,
+                                                    0xffu << 8, 0xffu << 0);
+
+    SDL_SetWindowIcon(window, surface);
+    SDL_FreeSurface(surface);
+#endif
 
     // [JN] Минимальный размер окна
     SDL_SetWindowMinimumSize(window, SCREENWIDTH/2, SCREENHEIGHT/2);
