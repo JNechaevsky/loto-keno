@@ -53,24 +53,13 @@
 #include "loto-keno.h"
 
 
-// [PN] Поддержка мгновенной отрисовки во время ресайза окна (WinAPI)
-#ifdef _WIN32
-#define SDL_MAIN_HANDLED
-#include <windows.h>
-#include <SDL_syswm.h>
-// [PN] Переменные для WinAPI-хака
-static WNDPROC originalWndProc = NULL;
-static HWND hwnd = NULL;
-#endif
-
-
-
-
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 
 int fullscreen = 0;
+static int window_width = SCREENWIDTH;
+static int window_height = SCREENHEIGHT;
 
 int screen_refresh = 1;
 int screen_visible = 1;
@@ -306,6 +295,15 @@ static void HandleWindowEvents (SDL_WindowEvent *event)
             case SDL_WINDOWEVENT_SHOWN:
                 screen_visible = 1;
                 break;
+
+            case SDL_WINDOWEVENT_SIZE_CHANGED:
+                if (!fullscreen)
+                {
+                    window_width = event->data1;
+                    window_height = event->data2;
+                }
+                screen_refresh = 1;
+                break;
         }
     }
 }
@@ -346,63 +344,6 @@ static void D_KenoLoop (void)
 // Основные циклы программы.
 // -----------------------------------------------------------------------------
 
-#ifdef _WIN32
-static LRESULT CALLBACK CustomWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    if (msg == WM_SIZING)
-    {
-        RECT *rect = (RECT *)lParam;
-
-        // [PN] Размер рамки окна (заголовок и бордеры)
-        RECT frameRect = { 0, 0, SCREENWIDTH, SCREENHEIGHT };
-        AdjustWindowRect(&frameRect, GetWindowLong(hwnd, GWL_STYLE), FALSE);
-        const int frameWidth  = (frameRect.right - frameRect.left) - SCREENWIDTH;
-        const int frameHeight = (frameRect.bottom - frameRect.top) - SCREENHEIGHT;
-
-        // [PN] Вычисляем новое соотношение
-        const float aspect = (float)SCREENWIDTH / (float)SCREENHEIGHT;
-        int newWidth  = rect->right - rect->left - frameWidth;
-        int newHeight = rect->bottom - rect->top - frameHeight;
-
-        switch (wParam)
-        {
-            case WMSZ_LEFT:
-            case WMSZ_RIGHT:
-                newHeight = (int)(newWidth / aspect);
-                break;
-
-            case WMSZ_TOP:
-            case WMSZ_BOTTOM:
-                newWidth = (int)(newHeight * aspect);
-                break;
-
-            default:
-                newHeight = (int)(newWidth / aspect);
-                break;
-        }
-
-        // [PN] Применяем с учётом рамки
-        rect->right  = rect->left + newWidth  + frameWidth;
-        rect->bottom = rect->top  + newHeight + frameHeight;
-
-        return TRUE;
-    }
-
-    if (msg == WM_SIZE)
-    {
-        screen_refresh = 1;
-        R_FinishUpdate();
-    }
-
-    return CallWindowProc(originalWndProc, hwnd, msg, wParam, lParam);
-}
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-{
-    return main(__argc, __argv);
-}
-#endif
-
 static void LoadConfig (void)
 {
 #ifdef _WIN32
@@ -413,6 +354,8 @@ static void LoadConfig (void)
     {
         language = 0;
         fullscreen = 0;
+        window_width = SCREENWIDTH;
+        window_height = SCREENHEIGHT;
         return;
     }
 
@@ -423,6 +366,8 @@ static void LoadConfig (void)
     {
         if (strcmp(key, "language") == 0)       language = value;
         if (strcmp(key, "fullscreen") == 0)     fullscreen = value;
+        if (strcmp(key, "window_width") == 0)   window_width = value;
+        if (strcmp(key, "window_height") == 0)  window_height = value;
     }
 
     fclose(f);
@@ -439,8 +384,10 @@ static void SaveConfig (void)
         return;
     }
 
-    fprintf(f, "language    %d\n",   language);
-    fprintf(f, "fullscreen  %d\n",   fullscreen);
+    fprintf(f, "language        %d\n",   language);
+    fprintf(f, "fullscreen      %d\n",   fullscreen);
+    fprintf(f, "window_width    %d\n",   window_width);
+    fprintf(f, "window_height   %d\n",   window_height);
     fclose(f);
 #endif
 }
@@ -481,20 +428,11 @@ int main (int argc, char *argv[])
     if (fullscreen)
     window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
-    window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREENWIDTH, SCREENHEIGHT, window_flags);
+    window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+                              window_width, window_height, window_flags);
 
     // [JN] Минимальный размер окна
     SDL_SetWindowMinimumSize(window, SCREENWIDTH/2, SCREENHEIGHT/2);
-
-#ifdef _WIN32
-    // [PN] Получаем HWND окна SDL и заменяем оконную процедуру на свою
-    SDL_SysWMinfo wminfo;
-    SDL_VERSION(&wminfo.version);
-    if (SDL_GetWindowWMInfo(window, &wminfo)) {
-        hwnd = wminfo.info.win.window;
-        originalWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWndProc);
-    }
-#endif
 
     renderer_flags = SDL_RENDERER_TARGETTEXTURE;
     renderer_flags |= SDL_RENDERER_PRESENTVSYNC;
