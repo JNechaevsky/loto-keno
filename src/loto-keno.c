@@ -371,57 +371,64 @@ static void D_KenoLoop (void)
 }
 
 // -----------------------------------------------------------------------------
-// Основные циклы программы.
+// Функции файла с настройками.
 // -----------------------------------------------------------------------------
+
+static const char *GetConfigPath (void)
+{
+#ifdef _WIN32
+    // [PN] Для Windows — просто текущий каталог.
+    return "loto-keno.ini";
+#else
+    const char* homeDir = getenv("HOME");
+    if (!homeDir) homeDir = ".";
+
+    static char path[256];
+    snprintf(path, sizeof(path), "%s/.local/share/loto-keno", homeDir);
+
+    // [PN] Проверяем и создаём каталог, если его ещё нет
+    struct stat st = {0};
+    if (stat(path, &st) == -1) {
+        mkdir(path, 0700);
+    }
+
+    static char fullPath[512];
+    snprintf(fullPath, sizeof(fullPath), "%s/loto-keno.ini", path);
+    return fullPath;
+#endif
+}
 
 static void LoadConfig (void)
 {
-#ifdef _WIN32
-    FILE *f = fopen("loto-keno.ini", "r");
+    FILE *file = fopen(GetConfigPath(), "r");
 
-    // [PN] Файл не найден — создаём с дефолтными значениями
-    if (!f)
+    if (file)
     {
-        language = 0;
-        fullscreen = 0;
-        window_width = SCREENWIDTH;
-        window_height = SCREENHEIGHT;
-        return;
+        fscanf(file, "language        %d\n",   &language);
+        fscanf(file, "fullscreen      %d\n",   &fullscreen);
+        fscanf(file, "window_width    %d\n",   &window_width);
+        fscanf(file, "window_height   %d\n",   &window_height);
+        fclose(file);
     }
-
-    char key[64];
-    int value;
-
-    while (fscanf(f, "%63s %d", key, &value) == 2)
-    {
-        if (strcmp(key, "language") == 0)       language = value;
-        if (strcmp(key, "fullscreen") == 0)     fullscreen = value;
-        if (strcmp(key, "window_width") == 0)   window_width = value;
-        if (strcmp(key, "window_height") == 0)  window_height = value;
-    }
-
-    fclose(f);
-#endif
 }
 
 static void SaveConfig (void)
 {
-#ifdef _WIN32
-    FILE *f = fopen("loto-keno.ini", "w");
+    FILE *file = fopen(GetConfigPath(), "w");
 
-    if (!f)
+    if (file)
     {
-        return;
+        fprintf(file, "language        %d\n",   language);
+        fprintf(file, "fullscreen      %d\n",   fullscreen);
+        fprintf(file, "window_width    %d\n",   window_width);
+        fprintf(file, "window_height   %d\n",   window_height);
+        fclose(file);
     }
-
-    fprintf(f, "language        %d\n",   language);
-    fprintf(f, "fullscreen      %d\n",   fullscreen);
-    fprintf(f, "window_width    %d\n",   window_width);
-    fprintf(f, "window_height   %d\n",   window_height);
-    fclose(f);
-#endif
 }
 
+// -----------------------------------------------------------------------------
+// Основной цикл программы.
+// -----------------------------------------------------------------------------
 
 int main (int argc, char *argv[])
 {
