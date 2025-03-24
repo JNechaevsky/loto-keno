@@ -404,10 +404,10 @@ static void LoadConfig (void)
 
     if (file)
     {
-        fscanf(file, "language        %d\n",   &language);
-        fscanf(file, "fullscreen      %d\n",   &fullscreen);
-        fscanf(file, "window_width    %d\n",   &window_width);
-        fscanf(file, "window_height   %d\n",   &window_height);
+        if (fscanf(file, "language        %d\n", &language) != 1)      language = 0;
+        if (fscanf(file, "fullscreen      %d\n", &fullscreen) != 1)    fullscreen = 0;
+        if (fscanf(file, "window_width    %d\n", &window_width) != 1)  window_width = SCREENWIDTH;
+        if (fscanf(file, "window_height   %d\n", &window_height) != 1) window_height = SCREENHEIGHT;
         fclose(file);
     }
 }
