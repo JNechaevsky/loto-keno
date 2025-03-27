@@ -43,6 +43,7 @@
 //
 // =============================================================================
 
+extern void R_InitColors (void);
 extern void R_FinishUpdate (void);
 
 // =============================================================================
@@ -133,17 +134,19 @@ extern TTF_Font *font;
 extern int screen_refresh;
 extern int screen_visible;
 
-extern SDL_Color white;
-extern SDL_Color black;
-extern SDL_Color cyan;
-extern SDL_Color magenta;
-extern SDL_Color gray;
-extern SDL_Color yellow;
-extern SDL_Color blue;
-extern SDL_Color red;
+extern SDL_Color color_white;
+extern SDL_Color color_black;
+extern SDL_Color color_cyan;
+extern SDL_Color color_magenta;
+extern SDL_Color color_blue;
+extern SDL_Color color_red;
+extern SDL_Color color_gray;
+extern SDL_Color color_yellow;
 extern SDL_Color resultColor;
 
 extern int language;
+extern int colors;
+
 extern int score;
 extern int maxScore;
 extern int bet;

@@ -58,7 +58,10 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 
-int fullscreen = 0;
+// Переменные для конфигурационного файла
+int language = 0; // [JN] 0 = English, 1 = Русский
+static int fullscreen = 0;
+int colors = 1; // [JN] 0 = B&W, 1 = CGA, 2 = EGA
 static int window_width = SCREENWIDTH;
 static int window_height = SCREENHEIGHT;
 
@@ -68,7 +71,6 @@ int screen_visible = 1;
 int isHoveringLeft;
 int isHoveringRight;
 
-int language = 0; // [JN] 0 = English, 1 = Русский
 int score = 10;
 int maxScore = 10; // [PN] Начальное значение соответствует стартовому счёту
 int bet = 1; // Запоминаем последнюю ставку
@@ -79,55 +81,24 @@ int gameOver = 0; // Флаг окончания игры
 int gameStarted = 0; // Флаг начала игры
 int gameHelp = 0; // [JN] Are we in help screen?
 
-// Standard CGA colors 
-SDL_Color white   = { 255, 255, 255, 255 };
-SDL_Color black   = {   0,   0,   0, 255 };
-SDL_Color cyan    = {   0, 170, 170, 255 };
-SDL_Color magenta = { 170,   0, 170, 255 };
-// Extra CGA color
-SDL_Color gray    = {  85,  85,  85, 255 };
-SDL_Color yellow  = { 255, 255,  85, 255 };
-SDL_Color blue    = {   0,   0, 170, 255 };
-SDL_Color red     = { 170,   0,   0, 255 };
+// Цвета B&W
+SDL_Color color_white;
+SDL_Color color_black;
+// Цвета CGA
+SDL_Color color_cyan;
+SDL_Color color_magenta;
+// Цвета EGA
+SDL_Color color_blue;
+SDL_Color color_red;
+SDL_Color color_gray;
+SDL_Color color_yellow;
 
 SDL_Color resultColor;
 
-
-
-/*
-SDL_Color white  = {255, 255, 255, 255};
-SDL_Color blue   = {85, 85, 255, 255};
-SDL_Color cyan   = {0, 170, 170, 255};
-SDL_Color purple = {170, 0, 170, 255};
-SDL_Color yellow = {255, 255, 85, 255};
-
-// [JN] TODO - CGA Coordinate grid. Can be removed or cleaned up.
-1111111111111111111111111111111111111111      0
-2222222222222222222222222222222222222222     16
-3333333333333333333333333333333333333333     32
-4444444444444444444444444444444444444444     48
-5555555555555555555555555555555555555555     64
-6666666666666666666666666666666666666666     80
-7777777777777777777777777777777777777777     96
-8888888888888888888888888888888888888888    112
-9999999999999999999999999999999999999999    128
-0000000000000000000000000000000000000000    144
-1111111111111111111111111111111111111111    160
-2222222222222222222222222222222222222222    176
-3333333333333333333333333333333333333333    192
-4444444444444444444444444444444444444444    208
-5555555555555555555555555555555555555555    224
-6666666666666666666666666666666666666666    240
-7777777777777777777777777777777777777777    256
-8888888888888888888888888888888888888888    272
-9999999999999999999999999999999999999999    288
-0000000000000000000000000000000000000000    304
-1111111111111111111111111111111111111111    320
-2222222222222222222222222222222222222222    336
-3333333333333333333333333333333333333333    352
-4444444444444444444444444444444444444444    368
-5555555555555555555555555555555555555555    384
-*/
+// [JN] Значения координат для сетки моноширного шрифта.
+// Один символ занимает 16х16 пикселей, поле CGA равно 40x25 символов.
+//   0  16  32  48  64  80  96 112 128 144 160 176 192
+//     208 224 240 256 272 288 304 320 336 352 368 384 
 
 
 // -----------------------------------------------------------------------------
@@ -407,6 +378,7 @@ static void LoadConfig (void)
     {
         if (fscanf(file, "language        %d\n", &language) != 1)      language = 0;
         if (fscanf(file, "fullscreen      %d\n", &fullscreen) != 1)    fullscreen = 0;
+        if (fscanf(file, "colors          %d\n", &colors) != 1)        colors = 1;
         if (fscanf(file, "window_width    %d\n", &window_width) != 1)  window_width = SCREENWIDTH;
         if (fscanf(file, "window_height   %d\n", &window_height) != 1) window_height = SCREENHEIGHT;
         fclose(file);
@@ -421,6 +393,7 @@ static void SaveConfig (void)
     {
         fprintf(file, "language        %d\n",   language);
         fprintf(file, "fullscreen      %d\n",   fullscreen);
+        fprintf(file, "colors          %d\n",   colors);
         fprintf(file, "window_width    %d\n",   window_width);
         fprintf(file, "window_height   %d\n",   window_height);
         fclose(file);
@@ -498,6 +471,9 @@ int main (int argc, char *argv[])
     L_SetLanguageStrings();
     // [PN] Выбираем первую случайную цитату
     G_GetTitleQuote(1);
+
+    // [JN] Инициализация цветовой схемы.
+    R_InitColors();
 
     D_KenoLoop();
     
