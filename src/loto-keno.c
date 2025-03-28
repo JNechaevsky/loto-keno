@@ -375,31 +375,34 @@ static const char *GetConfigPath (void)
 static void LoadConfig (void)
 {
     FILE *file = fopen(GetConfigPath(), "r");
+    if (!file) return;
 
-    if (file)
-    {
-        if (fscanf(file, "language        %d\n", &language) != 1)      language = 0;
-        if (fscanf(file, "fullscreen      %d\n", &fullscreen) != 1)    fullscreen = 0;
-        if (fscanf(file, "colors          %d\n", &colors) != 1)        colors = 1;
-        if (fscanf(file, "window_width    %d\n", &window_width) != 1)  window_width = SCREENWIDTH;
-        if (fscanf(file, "window_height   %d\n", &window_height) != 1) window_height = SCREENHEIGHT;
-        fclose(file);
-    }
+    // [JN] Чтение параметров с проверкой успешности fscanf
+    #define READ_OR_DEFAULT(var, def) if (fscanf(file, #var " %d\n", &var) != 1) var = def
+    READ_OR_DEFAULT(language, 0);
+    READ_OR_DEFAULT(fullscreen, 0);
+    READ_OR_DEFAULT(colors, 1);
+    READ_OR_DEFAULT(window_width, SCREENWIDTH);
+    READ_OR_DEFAULT(window_height, SCREENHEIGHT);
+    #undef READ_OR_DEFAULT
+
+    fclose(file);
 }
 
 static void SaveConfig (void)
 {
     FILE *file = fopen(GetConfigPath(), "w");
+    if (!file) return;
 
-    if (file)
-    {
-        fprintf(file, "language        %d\n",   language);
-        fprintf(file, "fullscreen      %d\n",   fullscreen);
-        fprintf(file, "colors          %d\n",   colors);
-        fprintf(file, "window_width    %d\n",   window_width);
-        fprintf(file, "window_height   %d\n",   window_height);
-        fclose(file);
-    }
+    #define WRITE(name, value) fprintf(file, "%-18s %d\n", #name, value)
+    WRITE(language, language);
+    WRITE(fullscreen, fullscreen);
+    WRITE(colors, colors);
+    WRITE(window_width, window_width);
+    WRITE(window_height, window_height);
+    #undef WRITE
+
+    fclose(file);
 }
 
 // -----------------------------------------------------------------------------
