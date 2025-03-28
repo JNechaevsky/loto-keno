@@ -61,7 +61,7 @@ TTF_Font *font = NULL;
 // Переменные для конфигурационного файла
 int language = 0; // [JN] 0 = English, 1 = Русский
 static int fullscreen = 0;
-int colors = 1; // [JN] 0 = B&W, 1 = CGA, 2 = EGA
+int colors = 2; // [JN] 0 = B&W, 1 = CGA, 2 = EGA
 static int window_width = SCREENWIDTH;
 static int window_height = SCREENHEIGHT;
 

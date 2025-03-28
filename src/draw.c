@@ -32,42 +32,53 @@
 
 static SDL_Color R_ApplyColor (Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
-    SDL_Color c = { r, g, b, a };
-    return c;
+    // [JN] Прямое возвращение составного литерала.
+    return (SDL_Color){r, g, b, a};
 }
 
 void R_InitColors (void)
 {
+    // Базовые цвета (не зависят от режима)
     color_white = R_ApplyColor(255, 255, 255, 255);
-    color_black = R_ApplyColor(  0,   0,   0, 255);
+    color_black = R_ApplyColor(0, 0, 0, 255);
 
-    switch (colors)
-    {
-        // Чёрно-белый
-        case 0:
-            color_cyan = color_magenta = color_gray = color_yellow =
-            color_blue = color_red = R_ApplyColor(255, 255, 255, 255);
-        break;
-        // CGA
-        case 1:
-            color_cyan    = 
-            color_blue    =
-            color_yellow  =
-            color_red     = R_ApplyColor(  0, 170, 170, 255);
-            color_magenta = R_ApplyColor(170,   0, 170, 255);
+    // Цветовые схемы
+    static const SDL_Color schemes[3][6] = {
+        // Чёрно-белый (0)
+        {
+            {255,255,255,255},  // cyan
+            {255,255,255,255},  // magenta
+            {255,255,255,255},  // gray
+            {255,255,255,255},  // yellow
+            {255,255,255,255},  // blue
+            {255,255,255,255}   // red
+        },
+        // CGA (1)
+        {
+            {  0,170,170,255},    // cyan
+            {170,  0,170,255},    // magenta
+            {255,255,255,255},    // gray
+            {  0,170,170,255},    // yellow
+            {  0,170,170,255},    // blue
+            {  0,170,170,255}     // red
+        },
+        // EGA (2)
+        {
+            {  0,170,170,255},    // cyan
+            {170,  0,170,255},    // magenta
+            { 85, 85, 85,255},    // gray
+            {255,255, 85,255},    // yellow
+            {  0,  0,170,255},    // blue
+            {170,  0,  0,255}     // red
+        }
+    };
 
-            color_gray    = R_ApplyColor(255, 255, 255, 255);
-        break;
-        // EGA
-        case 2:
-            color_cyan    = R_ApplyColor(  0, 170, 170, 255);
-            color_magenta = R_ApplyColor(170,   0, 170, 255);
-            color_blue    = R_ApplyColor(  0,   0, 170, 255);
-            color_gray    = R_ApplyColor( 85,  85,  85, 255);
-            color_red     = R_ApplyColor(170,   0,   0, 255);
-            color_yellow  = R_ApplyColor(255, 255,  85, 255);
-        break;
-    }
+    color_cyan    = schemes[colors][0];
+    color_magenta = schemes[colors][1];
+    color_gray    = schemes[colors][2];
+    color_yellow  = schemes[colors][3];
+    color_blue    = schemes[colors][4];
+    color_red     = schemes[colors][5];
 }
 
 // -----------------------------------------------------------------------------
