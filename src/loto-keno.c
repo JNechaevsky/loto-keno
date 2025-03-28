@@ -110,56 +110,58 @@ static void HandleMouseEvents (SDL_Event *event)
 {
     static int mousePressed = 0; // [PN] Отслеживание нажатия кнопки мыши
 
-    if (event->type == SDL_MOUSEMOTION || event->type == SDL_MOUSEBUTTONDOWN)
+    // [PN] Обновить экран при движении мыши, нажатии кнопки или скролле
+    if (event->type == SDL_MOUSEMOTION || event->type == SDL_MOUSEBUTTONDOWN
+    || (event->type == SDL_MOUSEWHEEL && gameStarted && !gameOver))
     {
-        // [PN] Обновить экран при движении мыши или нажатии кнопки
         screen_refresh = 1;
     }
 
+    // [PN] Обработка колёсика мыши (ставка)
     if (event->type == SDL_MOUSEWHEEL && gameStarted && !gameOver)
     {
-        bet += (event->wheel.y > 0 && bet < score) ? 1 : 0; // [PN] Увеличиваем ставку
-        bet -= (event->wheel.y < 0 && bet > 1) ? 1 : 0;     // [PN] Уменьшаем ставку
-        // [JN] Обновить экран при активации колёсика мыши
-        screen_refresh = 1;
+        bet += (event->wheel.y > 0 && bet < score) ? 1 : 0; // Увеличиваем ставку
+        bet -= (event->wheel.y < 0 && bet > 1) ? 1 : 0;     // Уменьшаем ставку
     }
 
+    // [PN] Обработка нажатия ЛКМ
     if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && !mousePressed)
     {
         mousePressed = 1; // [PN] Фиксируем нажатие кнопки
 
-        if (gameHelp)
+        if (gameHelp) // [JN] Закрываем экран помощи
         {
-            gameHelp = 0; // [JN] Закрываем экран помощи
+            gameHelp = 0;
             return;
         }
 
-        if (!gameStarted)
+        if (!gameStarted) // [PN] Стартуем игру
         {
-            gameStarted = 1; // [PN] Стартуем игру
-            G_StartNewRound();
-            return;
-        }
-
-        if (gameOver)
-        {
-            G_ResetGame(); // [PN] Перезапуск игры
             gameStarted = 1;
             G_StartNewRound();
             return;
         }
 
-        if (bet > 0)
+        if (gameOver) // [PN] Перезапуск игры
         {
-            choice = isHoveringLeft ? 1 : isHoveringRight ? 2 : 0; // [PN] Определяем выбор
+            G_ResetGame();
+            gameStarted = 1;
+            G_StartNewRound();
+            return;
+        }
+
+        if (bet > 0) // [PN] Определяем выбор и результат
+        {
+            choice = isHoveringLeft ? 1 : isHoveringRight ? 2 : 0;
             if (choice > 0)
                 G_DetermineResult();
         }
     }
 
+    // [PN] Сбрасываем нажатие ЛКМ
     if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT)
     {
-        mousePressed = 0; // [PN] Сбрасываем нажатие
+        mousePressed = 0;
     }
 }
 
