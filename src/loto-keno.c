@@ -120,8 +120,8 @@ static void HandleMouseEvents (SDL_Event *event)
     // [PN] Обработка колёсика мыши (ставка)
     if (event->type == SDL_MOUSEWHEEL && gameStarted && !gameOver)
     {
-        bet += (event->wheel.y > 0 && bet < score) ? 1 : 0; // Увеличиваем ставку
-        bet -= (event->wheel.y < 0 && bet > 1) ? 1 : 0;     // Уменьшаем ставку
+        if (event->wheel.y != 0) // Увеличиваем или уменьшаем ставку
+            bet = SDL_clamp(bet + event->wheel.y, 1, score);
     }
 
     // [PN] Обработка нажатия ЛКМ

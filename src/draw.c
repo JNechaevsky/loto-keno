@@ -281,24 +281,24 @@ static void R_DrawGameOverScreen (void)
 
 void R_FinishUpdate (void)
 {
-    if (screen_refresh && screen_visible)
-    {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
+    if (!screen_refresh || !screen_visible)
+        return;
 
-        if (gameHelp)
-            R_DrawHelpScreen();
-        else if (!gameStarted)
-            R_DrawTitleScreen();
-        else if (gameOver)
-            R_DrawGameOverScreen();
-        else
-            R_DrawGameField();
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
 
-        SDL_RenderPresent(renderer);
+    if (gameHelp)
+        R_DrawHelpScreen();
+    else if (!gameStarted)
+        R_DrawTitleScreen();
+    else if (gameOver)
+        R_DrawGameOverScreen();
+    else
+        R_DrawGameField();
 
-        // [JN] Отрисовка завершена, не осуществлять перерисовку
-        // до следующего нажатия клавиш или действия мышью.
-        screen_refresh = 0;
-    }
+    SDL_RenderPresent(renderer);
+
+    // [JN] Отрисовка завершена, не осуществлять перерисовку
+    // до следующего нажатия клавиш или действия мышью.
+    screen_refresh = 0;
 }

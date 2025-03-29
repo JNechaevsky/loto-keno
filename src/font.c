@@ -2,9 +2,9 @@
 // Downloaded from: https://int10h.org/oldschool-pc-fonts/download/
 // Available under: CC BY-SA 4.0 license
 
-unsigned int  ibm_vga_data_len = 98780;
+const unsigned int ibm_vga_data_len = 98780;
 
-unsigned char ibm_vga_data[] = {
+const unsigned char ibm_vga_data[] = {
 0,1,0,0,0,20,1,0,0,4,0,64,69,66,68,84,
 164,68,151,88,0,0,251,224,0,0,123,111,69,66,76,67,
 41,168,16,92,0,0,250,0,0,0,1,224,70,70,84,77,
