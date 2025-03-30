@@ -93,7 +93,12 @@ static void R_DrawTextCentered (const char *text, int y, SDL_Color color)
 {
     SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_Rect dest = { (SCREENWIDTH - surface->w) / 2, y, surface->w, surface->h };
+
+    // [PN] Вычисляем начальную позицию, округляя до ближайшего кратного 16
+    const int raw_x = (SCREENWIDTH - surface->w) / 2;
+    const int aligned_x = (raw_x / 16) * 16;
+
+    SDL_Rect dest = { aligned_x, y, surface->w, surface->h };
 
     SDL_RenderCopy(renderer, texture, NULL, &dest);
     SDL_FreeSurface(surface);
