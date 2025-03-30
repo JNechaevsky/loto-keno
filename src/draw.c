@@ -27,58 +27,45 @@
 
 // -----------------------------------------------------------------------------
 // R_InitColors
-//  Инициализация цветов
+//  Инициализация цветов CGA.
+//  https://en.wikipedia.org/wiki/Color_Graphics_Adapter#Standard_graphics_modes
 // -----------------------------------------------------------------------------
-
-static SDL_Color R_ApplyColor (Uint8 r, Uint8 g, Uint8 b, Uint8 a)
-{
-    // [JN] Прямое возвращение составного литерала.
-    return (SDL_Color){r, g, b, a};
-}
 
 void R_InitColors (void)
 {
-    // Базовые цвета (не зависят от режима)
-    color_white = R_ApplyColor(255, 255, 255, 255);
-    color_black = R_ApplyColor(0, 0, 0, 255);
-
-    // Цветовые схемы
-    static const SDL_Color schemes[3][6] = {
-        // Чёрно-белый (0)
+    // Индекс 0 всегда чёрного цвета.
+    cga_color_0 = (SDL_Color){0, 0, 0, 255};
+    
+    static const SDL_Color cga_colors[4][3] = {
+        // Палитра 0. Высокая интенсивность.
         {
-            {255,255,255,255},  // cyan
-            {255,255,255,255},  // magenta
-            {255,255,255,255},  // gray
-            {255,255,255,255},  // yellow
-            {255,255,255,255},  // blue
-            {255,255,255,255}   // red
+            { 85, 255,  85, 255},  // light green
+            {255,  85,  85, 255},  // light red
+            {255, 255,  85, 255},  // yellow
         },
-        // CGA (1)
+        // Палитра 0. Низкая интенсивность.
         {
-            {  0,170,170,255},    // cyan
-            {170,  0,170,255},    // magenta
-            {255,255,255,255},    // gray
-            {  0,170,170,255},    // yellow
-            {  0,170,170,255},    // blue
-            {  0,170,170,255}     // red
+            {  0, 170,   0, 255},  // green
+            {170,   0,   0, 255},  // red
+            {170,  85,   0, 255},  // brown
         },
-        // EGA (2)
+        // Palette 1. Высокая интенсивность.
         {
-            {  0,170,170,255},    // cyan
-            {170,  0,170,255},    // magenta
-            { 85, 85, 85,255},    // gray
-            {255,255, 85,255},    // yellow
-            {  0,  0,170,255},    // blue
-            {170,  0,  0,255}     // red
-        }
+            { 85, 255, 255, 255},  // light cyan
+            {255,  85, 255, 255},  // light magenta
+            {255, 255, 255, 255},  // white
+        },
+        // Palette 1. Низкая интенсивность.
+        {
+            {  0, 170, 170, 255},  // cyan
+            {170,   0, 170, 255},  // magenta
+            {170, 170, 170, 255},  // light gray
+        },
     };
 
-    color_cyan    = schemes[colors][0];
-    color_magenta = schemes[colors][1];
-    color_gray    = schemes[colors][2];
-    color_yellow  = schemes[colors][3];
-    color_blue    = schemes[colors][4];
-    color_red     = schemes[colors][5];
+    cga_color_1 = cga_colors[color_scheme][0];
+    cga_color_2 = cga_colors[color_scheme][1];
+    cga_color_3 = cga_colors[color_scheme][2];
 }
 
 // -----------------------------------------------------------------------------
@@ -148,22 +135,22 @@ static void R_DrawImage (const char *path, int x, int y)
 
 static void R_DrawTitleScreen (void)
 {
-    R_DrawTextCentered("╔══════════════════════╗", 16, color_white);
-    R_DrawTextCentered("║                      ║", 32, color_white);
-    R_DrawTextCentered("║                      ║", 48, color_white);
-    R_DrawTextCentered("║                      ║", 64, color_white);
-    R_DrawTextCentered("╚══════════════════════╝", 80, color_white);
-    R_DrawTextCentered(lang_title_name, 48, color_white);
-    R_DrawTextCentered(lang_title_version, 112, color_magenta);
-    R_DrawTextCentered(G_GetTitleQuote(0), 144, color_magenta);
+    R_DrawTextCentered("╔══════════════════════╗", 16, cga_color_3);
+    R_DrawTextCentered("║                      ║", 32, cga_color_3);
+    R_DrawTextCentered("║                      ║", 48, cga_color_3);
+    R_DrawTextCentered("║                      ║", 64, cga_color_3);
+    R_DrawTextCentered("╚══════════════════════╝", 80, cga_color_3);
+    R_DrawTextCentered(lang_title_name, 48, cga_color_3);
+    R_DrawTextCentered(lang_title_version, 112, cga_color_2);
+    R_DrawTextCentered(G_GetTitleQuote(0), 144, cga_color_2);
 
-    R_DrawTextCentered(lang_title_developed_by, 192, color_white);
-    R_DrawTextCentered(lang_title_authors, 224, color_magenta);
+    R_DrawTextCentered(lang_title_developed_by, 192, cga_color_3);
+    R_DrawTextCentered(lang_title_authors, 224, cga_color_2);
 
-    R_DrawText(lang_title_key_f1, 160, 288, color_white);
-    R_DrawText(lang_title_key_f2, 160, 320, color_white);
+    R_DrawText(lang_title_key_f1, 112, 288, cga_color_3);
+    R_DrawText(lang_title_key_f2, 112, 320, cga_color_3);
 
-    R_DrawTextCentered(lang_title_press_any_key, 368, color_white);
+    R_DrawTextCentered(lang_title_press_any_key, 368, cga_color_3);
 }
 
 // -----------------------------------------------------------------------------
@@ -175,7 +162,7 @@ static void R_DrawHelpScreen (void)
 {
     for (int i = 0; i < lang_help_lines_count; i++)
     {
-        R_DrawText(lang_help_lines[i], 16, 16 + i * 16, color_white);
+        R_DrawText(lang_help_lines[i], 16, 16 + i * 16, cga_color_3);
     }
 }
 
@@ -186,30 +173,30 @@ static void R_DrawHelpScreen (void)
 
 static void R_DrawGameField (void)
 {
-    R_DrawTextCentered("╔══════════════════════╗",  16, color_white);
-    R_DrawTextCentered("║                      ║",  32, color_white);
-    R_DrawTextCentered("║                      ║",  48, color_white);
-    R_DrawTextCentered("║                      ║",  64, color_white);
-    R_DrawTextCentered("║                      ║",  80, color_white);
-    R_DrawTextCentered("║                      ║",  96, color_white);
-    R_DrawTextCentered("║                      ║", 112, color_white);
-    R_DrawTextCentered("║                      ║", 128, color_white);
-    R_DrawTextCentered("╚══════════════════════╝", 144, color_white);
+    R_DrawTextCentered("╔══════════════════════╗",  16, cga_color_3);
+    R_DrawTextCentered("║                      ║",  32, cga_color_3);
+    R_DrawTextCentered("║                      ║",  48, cga_color_3);
+    R_DrawTextCentered("║                      ║",  64, cga_color_3);
+    R_DrawTextCentered("║                      ║",  80, cga_color_3);
+    R_DrawTextCentered("║                      ║",  96, cga_color_3);
+    R_DrawTextCentered("║                      ║", 112, cga_color_3);
+    R_DrawTextCentered("║                      ║", 128, cga_color_3);
+    R_DrawTextCentered("╚══════════════════════╝", 144, cga_color_3);
 
-    R_DrawText(lang_game_score, 144, 48, color_white);
+    R_DrawText(lang_game_score, 144, 48, cga_color_3);
     char scoreText[32];
     sprintf(scoreText, "%d", score);
-    R_DrawText(scoreText, 352, 48, color_white);
+    R_DrawText(scoreText, 352, 48, cga_color_3);
 
-    R_DrawText(lang_game_bet, 144, 80, color_white);
+    R_DrawText(lang_game_bet, 144, 80, cga_color_3);
     char betText[32];
     sprintf(betText, "%d", bet);
-    R_DrawText(betText, 352, 80, color_white);
+    R_DrawText(betText, 352, 80, cga_color_3);
 
-    R_DrawText(lang_game_round, 144, 112, color_white);
+    R_DrawText(lang_game_round, 144, 112, cga_color_3);
     char roundText[32];
     sprintf(roundText, "%d", rounds);
-    R_DrawText(roundText, 352, 112, color_white);
+    R_DrawText(roundText, 352, 112, cga_color_3);
 
     // [PN] Обработка событий мыши
     int realX, realY;
@@ -218,67 +205,40 @@ static void R_DrawGameField (void)
     SDL_RenderWindowToLogical(renderer, (float)realX, (float)realY, &mouseX, &mouseY);
 
     isHoveringLeft = (mouseX >= 16 && mouseX <= 320 && mouseY >= 176 && mouseY <= 256);
-    isHoveringRight = (mouseX >= 336 && mouseX <= 624 && mouseY >= 176 && mouseY <= 256);
-    const SDL_Color left_color = (isHoveringLeft || choice == 1) ? color_white : color_magenta;
-    const SDL_Color right_color = (isHoveringRight || choice == 2) ? color_white : color_magenta;
-
-
-    if ((isHoveringLeft || choice == 1) && colors == 0)
-    {
-        R_DrawText("╔═════════════════╗", 16, 176, left_color);
-        R_DrawText("║                 ║", 16, 192, left_color);
-        R_DrawText("║                 ║", 16, 208, left_color);
-        R_DrawText("║                 ║", 16, 224, left_color);
-        R_DrawText("╚═════════════════╝", 16, 240, left_color);
-    }
-    else
-    {
-        R_DrawText("┌─────────────────┐", 16, 176, left_color);
-        R_DrawText("│                 │", 16, 192, left_color);
-        R_DrawText("│                 │", 16, 208, left_color);
-        R_DrawText("│                 │", 16, 224, left_color);
-        R_DrawText("└─────────────────┘", 16, 240, left_color);        
-    }
-
+    const SDL_Color left_color = (isHoveringLeft || choice == 1) ? cga_color_3 : cga_color_2;
+    R_DrawText("┌─────────────────┐", 16, 176, left_color);
+    R_DrawText("│                 │", 16, 192, left_color);
+    R_DrawText("│                 │", 16, 208, left_color);
+    R_DrawText("│                 │", 16, 224, left_color);
+    R_DrawText("└─────────────────┘", 16, 240, left_color);        
     R_DrawText(lang_game_bud_bud_bud, 48, 208, left_color);
 
-    if ((isHoveringRight || choice == 2) && colors == 0)
-    {
-        R_DrawText("╔════════════════╗", 336, 176, right_color);
-        R_DrawText("║                ║", 336, 192, right_color);
-        R_DrawText("║                ║", 336, 208, right_color);
-        R_DrawText("║                ║", 336, 224, right_color);
-        R_DrawText("╚════════════════╝", 336, 240, right_color);
-    }
-    else
-    {
-        R_DrawText("┌────────────────┐", 336, 176, right_color);
-        R_DrawText("│                │", 336, 192, right_color);
-        R_DrawText("│                │", 336, 208, right_color);
-        R_DrawText("│                │", 336, 224, right_color);
-        R_DrawText("└────────────────┘", 336, 240, right_color);
-    }
-
+    isHoveringRight = (mouseX >= 336 && mouseX <= 624 && mouseY >= 176 && mouseY <= 256);
+    const SDL_Color right_color = (isHoveringRight || choice == 2) ? cga_color_3 : cga_color_2;
+    R_DrawText("┌────────────────┐", 336, 176, right_color);
+    R_DrawText("│                │", 336, 192, right_color);
+    R_DrawText("│                │", 336, 208, right_color);
+    R_DrawText("│                │", 336, 224, right_color);
+    R_DrawText("└────────────────┘", 336, 240, right_color);
     R_DrawText(lang_game_aaa_ooo_ooo, 368, 208, right_color);
 
     if (samuraiAppeared)
     {
-        R_DrawTextCentered("╔══════════╗", 272, color_yellow);
-        R_DrawTextCentered("║          ║", 288, color_yellow);
-        R_DrawTextCentered("║          ║", 304, color_yellow);
-        R_DrawTextCentered("║          ║", 320, color_yellow);
-        R_DrawTextCentered("╚══════════╝", 336, color_yellow);
-        R_DrawTextCentered(lang_game_hna, 304, color_yellow);
+        R_DrawTextCentered("╔══════════╗", 272, cga_color_1);
+        R_DrawTextCentered("║          ║", 288, cga_color_1);
+        R_DrawTextCentered("║          ║", 304, cga_color_1);
+        R_DrawTextCentered("║          ║", 320, cga_color_1);
+        R_DrawTextCentered("╚══════════╝", 336, cga_color_1);
+        R_DrawTextCentered(lang_game_hna, 304, cga_color_1);
     }
 
-    // [JN] TODO - Switch between 4 / 16 colors?
     if (resultQuoteIndex >= 0)
     {
         const char *quote = resultIsWin
             ? lang_game_win_quote[resultQuoteIndex]
             : lang_game_loose_quote[resultQuoteIndex];
     
-        R_DrawTextCentered(quote, 368, resultColor);
+        R_DrawTextCentered(quote, 368, resultIsWin ? cga_color_1 : cga_color_2);
     }
 }
 
@@ -289,17 +249,17 @@ static void R_DrawGameField (void)
 
 static void R_DrawGameOverScreen (void)
 {
-    R_DrawTextCentered(lang_over_game, 160, color_white);
+    R_DrawTextCentered(lang_over_game, 160, cga_color_3);
 
     char roundsText[64];
     sprintf(roundsText, "%s %d", lang_over_rounds, rounds);
-    R_DrawText(roundsText, 64, 192, color_white);
+    R_DrawText(roundsText, 64, 192, cga_color_3);
     
     char scoreText[64];
     sprintf(scoreText, "%s %d", lang_over_max_score, maxScore);
-    R_DrawText(scoreText, 64, 224, color_white);
+    R_DrawText(scoreText, 64, 224, cga_color_3);
 
-    R_DrawTextCentered(lang_over_enter, 304, color_cyan);
+    R_DrawTextCentered(lang_over_enter, 304, cga_color_1);
 }
 
 // -----------------------------------------------------------------------------

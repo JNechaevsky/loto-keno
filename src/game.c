@@ -111,7 +111,6 @@ void G_DetermineResult (void)
         {
             maxScore = score;
         }
-        resultColor = color_blue;
         resultQuoteIndex = rand() % lang_game_quote_win_size;
         resultIsWin = 1; // [PN] 💙 вот это важно!
     }
@@ -123,7 +122,6 @@ void G_DetermineResult (void)
         {
             bet = score;
         }
-        resultColor = color_red;
         resultQuoteIndex = rand() % lang_game_quote_loose_size;
         resultIsWin = 0; // [PN] ❤️ и это тоже!
     }

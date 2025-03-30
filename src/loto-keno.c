@@ -61,7 +61,7 @@ TTF_Font *font = NULL;
 // Переменные для конфигурационного файла
 int language = 0; // [JN] 0 = English, 1 = Русский
 static int fullscreen = 0;
-int colors = 2; // [JN] 0 = B&W, 1 = CGA, 2 = EGA
+int color_scheme = 0;
 static int window_width = SCREENWIDTH;
 static int window_height = SCREENHEIGHT;
 
@@ -81,19 +81,11 @@ int gameOver = 0; // Флаг окончания игры
 int gameStarted = 0; // Флаг начала игры
 int gameHelp = 0; // [JN] Are we in help screen?
 
-// Цвета B&W
-SDL_Color color_white;
-SDL_Color color_black;
-// Цвета CGA
-SDL_Color color_cyan;
-SDL_Color color_magenta;
-// Цвета EGA
-SDL_Color color_blue;
-SDL_Color color_red;
-SDL_Color color_gray;
-SDL_Color color_yellow;
-
-SDL_Color resultColor;
+// Цвета CGA для режима 320x200
+SDL_Color cga_color_0;  // Чёрный
+SDL_Color cga_color_1;  // Кияновый или зелёный
+SDL_Color cga_color_2;  // Фиолетовый или красный
+SDL_Color cga_color_3;  // Белый или жёлтый
 
 // [JN] Значения координат для сетки моноширного шрифта.
 // Один символ занимает 16х16 пикселей, поле CGA равно 40x25 символов.
@@ -198,6 +190,18 @@ static void HandleKeyboardEvents (SDL_Event *event)
     {
         language ^= 1;
         L_SetLanguageStrings();
+        return;
+    }
+
+    if (key == SDLK_F3)  // [JN] Смена палитры
+    {
+        if (++color_scheme > 3) color_scheme = 0;
+        R_InitColors();
+        return;
+    }
+
+    if (key == SDLK_F4)  // [JN] Ничего не делает! (пока что)
+    {
         return;
     }
 
@@ -381,7 +385,7 @@ static void LoadConfig (void)
     #define READ_OR_DEFAULT(var, def) if (fscanf(file, #var " %d\n", &var) != 1) var = def
     READ_OR_DEFAULT(language, 0);
     READ_OR_DEFAULT(fullscreen, 0);
-    READ_OR_DEFAULT(colors, 1);
+    READ_OR_DEFAULT(color_scheme, 0);
     READ_OR_DEFAULT(window_width, SCREENWIDTH);
     READ_OR_DEFAULT(window_height, SCREENHEIGHT);
     #undef READ_OR_DEFAULT
@@ -397,7 +401,7 @@ static void SaveConfig (void)
     #define WRITE(name, value) fprintf(file, "%-18s %d\n", #name, value)
     WRITE(language, language);
     WRITE(fullscreen, fullscreen);
-    WRITE(colors, colors);
+    WRITE(color_scheme, color_scheme);
     WRITE(window_width, window_width);
     WRITE(window_height, window_height);
     #undef WRITE

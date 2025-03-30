@@ -134,18 +134,13 @@ extern TTF_Font *font;
 extern int screen_refresh;
 extern int screen_visible;
 
-extern SDL_Color color_white;
-extern SDL_Color color_black;
-extern SDL_Color color_cyan;
-extern SDL_Color color_magenta;
-extern SDL_Color color_blue;
-extern SDL_Color color_red;
-extern SDL_Color color_gray;
-extern SDL_Color color_yellow;
-extern SDL_Color resultColor;
+extern SDL_Color cga_color_0;
+extern SDL_Color cga_color_1;
+extern SDL_Color cga_color_2;
+extern SDL_Color cga_color_3;
 
 extern int language;
-extern int colors;
+extern int color_scheme;
 
 extern int score;
 extern int maxScore;
