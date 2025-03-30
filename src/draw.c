@@ -155,7 +155,7 @@ static void R_DrawTitleScreen (void)
     R_DrawText(lang_title_key_f1, 80, 288, cga_color_3);
     R_DrawText(lang_title_key_f2, 80, 320, cga_color_3);
 
-    R_DrawTextCentered(lang_title_press_any_key, 368, cga_color_3);
+    R_DrawTextCentered(lang_title_press_any_key, 368, cga_color_1);
 }
 
 // -----------------------------------------------------------------------------
@@ -254,15 +254,15 @@ static void R_DrawGameField (void)
 
 static void R_DrawGameOverScreen (void)
 {
-    R_DrawTextCentered(lang_over_game, 160, cga_color_3);
+    R_DrawTextCentered(lang_over_game, 144, cga_color_3);
 
     char roundsText[64];
     sprintf(roundsText, "%s %d", lang_over_rounds, rounds);
-    R_DrawText(roundsText, 64, 192, cga_color_3);
+    R_DrawText(roundsText, 64, 192, cga_color_2);
     
     char scoreText[64];
     sprintf(scoreText, "%s %d", lang_over_max_score, maxScore);
-    R_DrawText(scoreText, 64, 224, cga_color_3);
+    R_DrawText(scoreText, 64, 224, cga_color_2);
 
     R_DrawTextCentered(lang_over_enter, 304, cga_color_1);
 }
