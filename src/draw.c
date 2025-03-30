@@ -227,7 +227,7 @@ static void R_DrawGameField (void)
     R_DrawText("└────────────────┘", 336, 240, right_color);
     R_DrawText(lang_game_aaa_ooo_ooo, 368, 208, right_color);
 
-    if (samuraiAppeared)
+    if (gameHna)
     {
         R_DrawTextCentered("╔══════════╗", 272, cga_color_1);
         R_DrawTextCentered("║          ║", 288, cga_color_1);
@@ -293,5 +293,5 @@ void R_FinishUpdate (void)
 
     // [JN] Отрисовка завершена, не осуществлять перерисовку
     // до следующего нажатия клавиш или действия мышью.
-    screen_refresh = 0;
+    screen_refresh = false;
 }

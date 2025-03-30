@@ -85,7 +85,7 @@ void G_ResetGame (void)
 void G_StartNewRound (void)
 {
     // [PN] 1 к 10 шанс появления самурая в начале раунда
-    samuraiAppeared = (rand() % SAMURAI_CHANCE == 0);
+    gameHna = (rand() % SAMURAI_CHANCE == 0);
     // [PN] Clear bet's choice
     choice = 0;
     // [JN] Increment round counter.
@@ -105,7 +105,7 @@ void G_DetermineResult (void)
     
     if (win)
     {
-        score += bet * (samuraiAppeared ? 2 : 1);
+        score += bet * (gameHna ? 2 : 1);
         // [PN] Обновляем maxScore, если score стал больше него:
         if (score > maxScore)
         {
@@ -116,7 +116,7 @@ void G_DetermineResult (void)
     }
     else
     {
-        score -= bet * (samuraiAppeared ? 2 : 1);
+        score -= bet * (gameHna ? 2 : 1);
         // [JN] В случае проигрыша, ставка не должна превышать текущий счёт!
         if (bet > score)
         {

@@ -54,34 +54,37 @@
 #include "icon.c"
 
 
+// SDL рендерер и окно программы:
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 TTF_Font *font = NULL;
 
-// Переменные для конфигурационного файла
-int language = 0; // [JN] 0 = English, 1 = Русский
-static int fullscreen = 0;
-int color_scheme = 0;
-static int window_x = SDL_WINDOWPOS_CENTERED;
-static int window_y = SDL_WINDOWPOS_CENTERED;
-static int window_width = SCREENWIDTH;
-static int window_height = SCREENHEIGHT;
+bool screen_refresh = true; // Требуется ли перерисовка кадра на следующем тике?
+bool screen_visible = true; // Виденно ли окно программы (т.е. не минимизировано)?
 
-int screen_refresh = 1;
-int screen_visible = 1;
+// Переменные для конфигурационного файла:
+int language = 0;     // Язык игры: 0 = English, 1 = Русский
+int fullscreen = 0;   // Полноэкранный режим
+int color_scheme = 0; // Цветовая схема CGA
+int window_x = SDL_WINDOWPOS_CENTERED; // Позиция окна по X
+int window_y = SDL_WINDOWPOS_CENTERED; // Позиция окна по Y
+int window_width = SCREENWIDTH;   // Ширина окна
+int window_height = SCREENHEIGHT; // Высота окна
 
-int isHoveringLeft;
-int isHoveringRight;
+// Переменные игры:
+int score = 10;    // Стартовый счёт
+int maxScore = 10; // Максимальный счёт (рекорд)
+int bet = 1;       // Сделанная ставка
+int rounds = 0;    // Игровой раунд (round - переменная языка С)
+int choice = 0;    // 0 = Ещё не сделана, 1 = Будь-будь-будь!, 2 = А-ОООО-ООО-Оо!
 
-int score = 10;
-int maxScore = 10; // [PN] Начальное значение соответствует стартовому счёту
-int bet = 1; // Запоминаем последнюю ставку
-int rounds = 0; // [JN] Means "round", but it's C reserved word.
-int choice = 0; // 1 = Будь-будь-будь, 2 = А-ООО!
-int samuraiAppeared = 0; // Был ли самурай в этом раунде
-int gameOver = 0; // Флаг окончания игры
-int gameStarted = 0; // Флаг начала игры
-int gameHelp = 0; // [JN] Are we in help screen?
+bool gameHna = false;     // Появился самурай? (ХНА!)
+bool gameOver = false;    // Игра окончена?
+bool gameStarted = false; // Игра начата?
+bool gameHelp = false;    // Отображается экран помощи?
+
+bool isHoveringLeft;  // Курсор мыши наведён на Будь-будь-будь!
+bool isHoveringRight; // Курсор мыши наведён на А-ОООО-ООО-Оо!
 
 // Цвета CGA для режима 320x200
 SDL_Color cga_color_0;  // Чёрный
@@ -108,7 +111,7 @@ static void HandleMouseEvents (SDL_Event *event)
     if (event->type == SDL_MOUSEMOTION || event->type == SDL_MOUSEBUTTONDOWN
     || (event->type == SDL_MOUSEWHEEL && gameStarted && !gameOver))
     {
-        screen_refresh = 1;
+        screen_refresh = true;
     }
 
     // [PN] Обработка колёсика мыши (ставка)
@@ -173,7 +176,7 @@ static void HandleKeyboardEvents (SDL_Event *event)
     const Uint16 mod = event->key.keysym.mod;
 
     // [JN] Нажатие любой клавиши перерисовывает экран.
-    screen_refresh = 1;
+    screen_refresh = true;
 
     if (key == SDLK_F1)  // [JN] Открытие экрана помощи
     {
@@ -321,7 +324,7 @@ static void HandleWindowEvents (SDL_WindowEvent *event)
                         window_height = new_height;
                     }
                 }
-                screen_refresh = 1;
+                screen_refresh = true;
                 break;
         }
     }

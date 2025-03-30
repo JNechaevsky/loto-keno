@@ -33,6 +33,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <time.h>
 
@@ -131,8 +132,8 @@ extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 extern TTF_Font *font;
 
-extern int screen_refresh;
-extern int screen_visible;
+extern bool screen_refresh;
+extern bool screen_visible;
 
 extern SDL_Color cga_color_0;
 extern SDL_Color cga_color_1;
@@ -147,12 +148,13 @@ extern int maxScore;
 extern int bet;
 extern int rounds;
 extern int choice;
-extern int samuraiAppeared;
-extern int gameOver;
-extern int gameStarted;
-extern int gameHelp;
 
-extern int isHoveringLeft;
-extern int isHoveringRight;
+extern bool gameHna;
+extern bool gameOver;
+extern bool gameStarted;
+extern bool gameHelp;
+
+extern bool isHoveringLeft;
+extern bool isHoveringRight;
 
 static void SaveConfig (void);
