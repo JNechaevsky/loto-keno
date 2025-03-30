@@ -173,7 +173,7 @@ static const char *txt_help_lines_eng[] = {
     "│ ← and → - select                   │",
     "│ ↑ and ↓ - change bet               │",
     "│ ENTER   - confirm                  │",
-    "│ ALT + ENTER - full screen mode     │",
+    "│                                    │",
     "│                                    │",
     "│            Good luck!              │",
     "└────────────────────────────────────┘",
@@ -199,7 +199,7 @@ static const char *txt_help_lines_rus[] = {
     "│ ← и → - выбор                      │",
     "│ ↑ и ↓ - ставки                     │",
     "│ ENTER - подтвердить                │",
-    "│ ALT + ENTER - полноэкранный режим  │",
+    "│                                    │",
     "│                                    │",
     "│               Удачи!               │",
     "└────────────────────────────────────┘",
@@ -1292,7 +1292,7 @@ void L_SetLanguageStrings (void)
             lang_title_developed_by  = "Developed and designed by:";
             lang_title_authors       = "Polina \"Aura\" N. ♥ Julia Nechaevskaya";
             lang_title_key_f1        = "F1 - Help     F2 - Language";
-            lang_title_key_f2        = "F3 - Palette  F4 - Nothing!";
+            lang_title_key_f2        = "F3 - Palette  F4 - Screen mode";
             lang_title_press_any_key = "Press any key...";
             lang_title_quote = txt_title_quotes_eng;
             lang_title_quote_size = sizeof(txt_title_quotes_eng) / sizeof(txt_title_quotes_eng[0]);
@@ -1324,7 +1324,7 @@ void L_SetLanguageStrings (void)
             lang_title_developed_by  = "Разработка и идея:";
             lang_title_authors       = "Полина \"Аура\" Н. ♥ Юлия Нечаевская";
             lang_title_key_f1        = "F1 - Помощь   F2 - Язык";
-            lang_title_key_f2        = "F3 - Палитра  F4 - Пусто!";
+            lang_title_key_f2        = "F3 - Палитра  F4 - Режим экрана";
             lang_title_press_any_key = "Нажмите любую клавишу...";
             lang_title_quote = txt_title_quotes_rus;
             lang_title_quote_size = sizeof(txt_title_quotes_rus) / sizeof(txt_title_quotes_rus[0]);

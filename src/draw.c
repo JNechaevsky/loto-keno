@@ -152,8 +152,8 @@ static void R_DrawTitleScreen (void)
     R_DrawTextCentered(lang_title_developed_by, 192, cga_color_3);
     R_DrawTextCentered(lang_title_authors, 224, cga_color_2);
 
-    R_DrawText(lang_title_key_f1, 112, 288, cga_color_3);
-    R_DrawText(lang_title_key_f2, 112, 320, cga_color_3);
+    R_DrawText(lang_title_key_f1, 80, 288, cga_color_3);
+    R_DrawText(lang_title_key_f2, 80, 320, cga_color_3);
 
     R_DrawTextCentered(lang_title_press_any_key, 368, cga_color_3);
 }

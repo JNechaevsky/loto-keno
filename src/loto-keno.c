@@ -173,13 +173,6 @@ static void HandleKeyboardEvents (SDL_Event *event)
     // [JN] Нажатие любой клавиши перерисовывает экран.
     screen_refresh = 1;
 
-    if ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && (mod & KMOD_ALT))
-    {
-        // [PN] Alt + Enter пойман, переключение в полноэкранный режим
-        fullscreen ^= 1;
-        SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-    }
-
     if (key == SDLK_F1)  // [JN] Открытие экрана помощи
     {
         gameHelp ^= 1;
@@ -200,8 +193,16 @@ static void HandleKeyboardEvents (SDL_Event *event)
         return;
     }
 
-    if (key == SDLK_F4)  // [JN] Ничего не делает! (пока что)
+    if (key == SDLK_F4  // [PN/JN] Переключение полноэкранного режима
+    || (key == SDLK_RETURN || key == SDLK_KP_ENTER) && (mod & KMOD_ALT))
     {
+        fullscreen ^= 1;
+        SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+
+        // Перемещение курсора в центр экрана.
+        int screen_width, screen_height;
+        SDL_GetRendererOutputSize(renderer, &screen_width, &screen_height);
+        SDL_WarpMouseInWindow(window, screen_width / 2, screen_height / 2);
         return;
     }
 
