@@ -63,7 +63,7 @@ bool screen_refresh = true; // Требуется ли перерисовка к
 bool screen_visible = true; // Виденно ли окно программы (т.е. не минимизировано)?
 
 // Переменные для конфигурационного файла:
-int language = 0;     // Язык игры: 0 = English, 1 = Русский
+int language = 0;     // Язык игры: 0 = English, 1 = Deutsch, 2 = Русский
 int fullscreen = 0;   // Полноэкранный режим
 int color_scheme = 0; // Цветовая схема CGA
 int window_x = SDL_WINDOWPOS_CENTERED; // Позиция окна по X
@@ -186,7 +186,7 @@ static void HandleKeyboardEvents (SDL_Event *event)
 
     if (key == SDLK_F2)  // [JN] Смена языка
     {
-        language ^= 1;
+        if (++language > 2) language = 0;
         L_SetLanguageStrings();
         return;
     }

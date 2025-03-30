@@ -25,7 +25,7 @@ Try not to lose all your points. Or do. Who's judging?
 ## Notes
 - All assets are embedded.
 - Help screen may or may not help (F1) .
-- English and Russian supported, with hot-swap (F2).
+- English, German and Russian supported, with hot-swap (F2).
 - Will someday have a point. Maybe.
 - Designed for maximum nostalgia and minimal coherence.
 
