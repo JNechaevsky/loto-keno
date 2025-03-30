@@ -62,6 +62,8 @@ TTF_Font *font = NULL;
 int language = 0; // [JN] 0 = English, 1 = Русский
 static int fullscreen = 0;
 int color_scheme = 0;
+static int window_x = SDL_WINDOWPOS_CENTERED;
+static int window_y = SDL_WINDOWPOS_CENTERED;
 static int window_width = SCREENWIDTH;
 static int window_height = SCREENHEIGHT;
 
@@ -275,6 +277,14 @@ static void HandleWindowEvents (SDL_WindowEvent *event)
                 screen_visible = 1;
                 break;
 
+            case SDL_WINDOWEVENT_MOVED:
+                if (!fullscreen)
+                {
+                    // [PN] Получение позиции окна при перемещении
+                    SDL_GetWindowPosition(window, &window_x, &window_y);
+                }
+                break;
+
             case SDL_WINDOWEVENT_RESIZED:
             case SDL_WINDOWEVENT_SIZE_CHANGED:
                 if (!fullscreen)
@@ -387,6 +397,8 @@ static void LoadConfig (void)
     READ_OR_DEFAULT(language, 0);
     READ_OR_DEFAULT(fullscreen, 0);
     READ_OR_DEFAULT(color_scheme, 0);
+    READ_OR_DEFAULT(window_x, SDL_WINDOWPOS_CENTERED);
+    READ_OR_DEFAULT(window_y, SDL_WINDOWPOS_CENTERED);
     READ_OR_DEFAULT(window_width, SCREENWIDTH);
     READ_OR_DEFAULT(window_height, SCREENHEIGHT);
     #undef READ_OR_DEFAULT
@@ -403,6 +415,8 @@ static void SaveConfig (void)
     WRITE(language, language);
     WRITE(fullscreen, fullscreen);
     WRITE(color_scheme, color_scheme);
+    WRITE(window_x, window_x);
+    WRITE(window_y, window_y);
     WRITE(window_width, window_width);
     WRITE(window_height, window_height);
     #undef WRITE
@@ -455,7 +469,7 @@ int main (int argc, char *argv[])
     if (fullscreen)
     window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
-    window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+    window = SDL_CreateWindow("", window_x, window_y, 
                               window_width, window_height, window_flags);
 
     // [JN] Присвоение иконки для окна.
