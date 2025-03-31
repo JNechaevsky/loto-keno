@@ -414,14 +414,14 @@ static void SaveConfig (void)
     FILE *file = fopen(GetConfigPath(), "w");
     if (!file) return;
 
-    #define WRITE(name, value) fprintf(file, "%-18s %d\n", #name, value)
-    WRITE(language, language);
-    WRITE(fullscreen, fullscreen);
-    WRITE(color_scheme, color_scheme);
-    WRITE(window_x, window_x);
-    WRITE(window_y, window_y);
-    WRITE(window_width, window_width);
-    WRITE(window_height, window_height);
+    #define WRITE(var) fprintf(file, "%-18s %d\n", #var, var)
+    WRITE(language);
+    WRITE(fullscreen);
+    WRITE(color_scheme);
+    WRITE(window_x);
+    WRITE(window_y);
+    WRITE(window_width);
+    WRITE(window_height);
     #undef WRITE
 
     fclose(file);
