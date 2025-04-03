@@ -449,19 +449,15 @@ int main (int argc, char *argv[])
 
     // [JN/PN] Создание консольного окна для вывода, если
     // предоставлен параметр коммандной строки "-console".
-    for (int i = 1; i < argc; i++)
+    if (argc > 1 && strcmp(argv[1], "-console") == 0)
     {
-        if (strcmp(argv[i], "-console") == 0)
-        {
-            AllocConsole();
-            SetConsoleTitle("Console");
-            freopen("CONIN$", "r", stdin);
-            freopen("CONOUT$", "w", stdout);
-            freopen("CONOUT$", "w", stderr);
-            SetConsoleOutputCP(CP_UTF8);
-            SetConsoleCP(CP_UTF8);
-            break;
-        }
+        AllocConsole();
+        SetConsoleTitle("Console");
+        freopen("CONIN$", "r", stdin);
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleCP(CP_UTF8);
     }
 #endif
 

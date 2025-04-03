@@ -101,11 +101,12 @@ void G_DetermineResult (void)
 {
     const int randomNumber = rand() % 100; // [PN] Число от 0 до 99
     const int isEven = (randomNumber % 2 == 0);
+    const int multiplier = gameHna ? 2 : 1;
     const int win = (choice == 1 && isEven) || (choice == 2 && !isEven);
     
     if (win)
     {
-        score += bet * (gameHna ? 2 : 1);
+        score += bet * multiplier;
         // [PN] Обновляем maxScore, если score стал больше него:
         if (score > maxScore)
         {
@@ -116,7 +117,7 @@ void G_DetermineResult (void)
     }
     else
     {
-        score -= bet * (gameHna ? 2 : 1);
+        score -= bet * multiplier;
         // [JN] В случае проигрыша, ставка не должна превышать текущий счёт!
         if (bet > score)
         {
