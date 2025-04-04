@@ -452,7 +452,22 @@ int main (int argc, char *argv[])
     // устанавливая осведомлённость процесса о DPI (DPI-aware).
     // Это позволяет избежать размытости изображения и корректно 
     // перекрывать экран при запуске в полноэкранном режиме.
-    SetProcessDPIAware();
+    //
+    // [PN] Для совместимости с Windows XP мы вызываем SetProcessDPIAware
+    // через GetProcAddress. Эта функция доступна только начиная с Vista,
+    // поэтому прямой вызов приведёт к падению на XP.
+    {
+        HMODULE user32 = LoadLibraryA("user32.dll");
+        if (user32)
+        {
+            typedef BOOL (WINAPI *DPIAWARENESSFUNC)(void);
+            DPIAWARENESSFUNC SetProcessDPIAware = 
+                (DPIAWARENESSFUNC)GetProcAddress(user32, "SetProcessDPIAware");
+            if (SetProcessDPIAware)
+                SetProcessDPIAware();
+            FreeLibrary(user32);
+        }
+    }
 
     // [JN/PN] Создание консольного окна для вывода, если
     // предоставлен параметр коммандной строки "-console".
