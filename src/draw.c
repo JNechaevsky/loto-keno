@@ -106,6 +106,72 @@ static void R_DrawTextCentered (const char *text, int y, SDL_Color color)
 }
 
 // -----------------------------------------------------------------------------
+// R_DrawBox
+//  [PN] Отрисовка прямоугольника с одиночной линией.
+// -----------------------------------------------------------------------------
+
+static void R_DrawBox (int start_x, int start_y, int end_x, int end_y, SDL_Color color)
+{
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+
+    // На случай, если будет нужна другая толщина линии.
+    const int frame_thickness = 2;
+
+    // Рисуем 4 стороны прямоугольника
+    for (int i = 0; i < frame_thickness; i++)
+    {
+        // Горизонтали: двигаем только по Y
+        SDL_RenderDrawLine(renderer, start_x, start_y + i, end_x, start_y + i); // верх
+        SDL_RenderDrawLine(renderer, start_x, end_y - i, end_x, end_y - i);     // низ
+
+        // Вертикали: двигаем только по X
+        SDL_RenderDrawLine(renderer, start_x + i, start_y, start_x + i, end_y); // левая
+        SDL_RenderDrawLine(renderer, end_x - i, start_y, end_x - i, end_y);     // правая
+    }
+}
+
+// -----------------------------------------------------------------------------
+// R_DrawBox
+//  [PN] Отрисовка прямоугольника с двойной линией.
+// -----------------------------------------------------------------------------
+
+static void R_DrawDoubleBox (int start_x, int start_y, int end_x, int end_y, SDL_Color color)
+{
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+
+    // Толщина каждой рамки
+    const int frame_thickness = 2;
+
+    // Первая (внешняя) рамка
+    for (int i = 0; i < frame_thickness; i++)
+    {
+        // Горизонтали
+        SDL_RenderDrawLine(renderer, start_x, start_y + i, end_x, start_y + i); // верх
+        SDL_RenderDrawLine(renderer, start_x, end_y - i, end_x, end_y - i);     // низ
+
+        // Вертикали
+        SDL_RenderDrawLine(renderer, start_x + i, start_y, start_x + i, end_y); // левая
+        SDL_RenderDrawLine(renderer, end_x - i, start_y, end_x - i, end_y);     // правая
+    }
+
+    // Вторая (внутренняя) рамка — на расстоянии frame_thickness*2 внутрь
+    const int inset_start_x = start_x + frame_thickness * 2;
+    const int inset_start_y = start_y + frame_thickness * 2;
+    const int inset_end_x   = end_x   - frame_thickness * 2;
+    const int inset_end_y   = end_y   - frame_thickness * 2;
+
+    for (int i = 0; i < frame_thickness; i++)
+    {
+        SDL_RenderDrawLine(renderer, inset_start_x, inset_start_y + i, inset_end_x, inset_start_y + i); // верх
+        SDL_RenderDrawLine(renderer, inset_start_x, inset_end_y - i, inset_end_x, inset_end_y - i);     // низ
+
+        SDL_RenderDrawLine(renderer, inset_start_x + i, inset_start_y, inset_start_x + i, inset_end_y); // левая
+        SDL_RenderDrawLine(renderer, inset_end_x - i, inset_start_y, inset_end_x - i, inset_end_y);     // правая
+    }
+}
+
+
+// -----------------------------------------------------------------------------
 // R_DrawImage
 //  [PN] Рисует BMP-картинку в заданных координатах. Пример использования: 
 //  R_DrawImage("hna.bmp", 100, 50);
@@ -144,11 +210,7 @@ static void R_DrawImage (const char *path, int x, int y)
 
 static void R_DrawTitleScreen (void)
 {
-    R_DrawTextCentered("╔══════════════════════╗", 16, cga_color_3);
-    R_DrawTextCentered("║                      ║", 32, cga_color_3);
-    R_DrawTextCentered("║                      ║", 48, cga_color_3);
-    R_DrawTextCentered("║                      ║", 64, cga_color_3);
-    R_DrawTextCentered("╚══════════════════════╝", 80, cga_color_3);
+    R_DrawDoubleBox(132, 20, 508, 90, cga_color_3);
     R_DrawTextCentered(lang_title_name, 48, cga_color_3);
     R_DrawTextCentered(lang_title_version, 112, cga_color_2);
     R_DrawTextCentered(G_GetTitleQuote(0), 144, cga_color_2);
@@ -182,15 +244,7 @@ static void R_DrawHelpScreen (void)
 
 static void R_DrawGameField (void)
 {
-    R_DrawTextCentered("╔══════════════════════╗",  16, cga_color_3);
-    R_DrawTextCentered("║                      ║",  32, cga_color_3);
-    R_DrawTextCentered("║                      ║",  48, cga_color_3);
-    R_DrawTextCentered("║                      ║",  64, cga_color_3);
-    R_DrawTextCentered("║                      ║",  80, cga_color_3);
-    R_DrawTextCentered("║                      ║",  96, cga_color_3);
-    R_DrawTextCentered("║                      ║", 112, cga_color_3);
-    R_DrawTextCentered("║                      ║", 128, cga_color_3);
-    R_DrawTextCentered("╚══════════════════════╝", 144, cga_color_3);
+    R_DrawDoubleBox(132, 20, 508, 154, cga_color_3);
 
     R_DrawText(lang_game_score, 144, 48, cga_color_3);
     char scoreText[32];
@@ -209,28 +263,16 @@ static void R_DrawGameField (void)
 
     // [PN] Подсветка рамки с выбором
     const SDL_Color left_color = (isHoveringLeft || choice == 1) ? cga_color_3 : cga_color_2;
-    R_DrawText("┌─────────────────┐", 16, 176, left_color);
-    R_DrawText("│                 │", 16, 192, left_color);
-    R_DrawText("│                 │", 16, 208, left_color);
-    R_DrawText("│                 │", 16, 224, left_color);
-    R_DrawText("└─────────────────┘", 16, 240, left_color);        
+    R_DrawBox(22, 184, 310, 248, left_color);
     R_DrawText(lang_game_bud_bud_bud, 48, 208, left_color);
 
     const SDL_Color right_color = (isHoveringRight || choice == 2) ? cga_color_3 : cga_color_2;
-    R_DrawText("┌────────────────┐", 336, 176, right_color);
-    R_DrawText("│                │", 336, 192, right_color);
-    R_DrawText("│                │", 336, 208, right_color);
-    R_DrawText("│                │", 336, 224, right_color);
-    R_DrawText("└────────────────┘", 336, 240, right_color);
+    R_DrawBox(342, 184, 614, 248, right_color);
     R_DrawText(lang_game_aaa_ooo_ooo, 368, 208, right_color);
 
     if (gameHna)
     {
-        R_DrawTextCentered("╔══════════╗", 272, cga_color_1);
-        R_DrawTextCentered("║          ║", 288, cga_color_1);
-        R_DrawTextCentered("║          ║", 304, cga_color_1);
-        R_DrawTextCentered("║          ║", 320, cga_color_1);
-        R_DrawTextCentered("╚══════════╝", 336, cga_color_1);
+        R_DrawDoubleBox(228, 276, 410, 344, cga_color_1);
         R_DrawTextCentered(lang_game_hna, 304, cga_color_1);
     }
 
