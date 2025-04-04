@@ -36,11 +36,6 @@ set(SOURCES
     data/loto-keno.rc
 )
 
-# Файл с иконкой (не используется в Windows)
-if (NOT WIN32)
-    list(APPEND SOURCE_FILES src/icon.c)
-endif()
-
 # Заголовки (для IDE и порядка)
 set(HEADERS
     src/loto-keno.h
