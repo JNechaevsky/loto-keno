@@ -109,7 +109,10 @@ static void R_DrawTextCentered (const char *text, int y, SDL_Color color)
 // R_DrawImage
 //  [PN] Рисует BMP-картинку в заданных координатах. Пример использования: 
 //  R_DrawImage("hna.bmp", 100, 50);
+//  В данный момент не используется, оставлена как пример.
 // -----------------------------------------------------------------------------
+
+/*
 static void R_DrawImage (const char *path, int x, int y)
 {
     SDL_Surface *surface = SDL_LoadBMP(path);
@@ -132,6 +135,7 @@ static void R_DrawImage (const char *path, int x, int y)
     SDL_RenderCopy(renderer, texture, NULL, &dst);
     SDL_DestroyTexture(texture);
 }
+*/
 
 // -----------------------------------------------------------------------------
 // R_DrawTitleScreen
