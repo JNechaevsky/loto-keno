@@ -207,13 +207,7 @@ static void R_DrawGameField (void)
     sprintf(roundText, "%d", rounds);
     R_DrawText(roundText, 352, 112, cga_color_3);
 
-    // [PN] Обработка событий мыши
-    int realX, realY;
-    float mouseX, mouseY;
-    SDL_GetMouseState(&realX, &realY);
-    SDL_RenderWindowToLogical(renderer, realX, realY, &mouseX, &mouseY);
-
-    isHoveringLeft = (mouseX >= 16 && mouseX <= 320 && mouseY >= 176 && mouseY <= 256);
+    // [PN] Подсветка рамки с выбором
     const SDL_Color left_color = (isHoveringLeft || choice == 1) ? cga_color_3 : cga_color_2;
     R_DrawText("┌─────────────────┐", 16, 176, left_color);
     R_DrawText("│                 │", 16, 192, left_color);
@@ -222,7 +216,6 @@ static void R_DrawGameField (void)
     R_DrawText("└─────────────────┘", 16, 240, left_color);        
     R_DrawText(lang_game_bud_bud_bud, 48, 208, left_color);
 
-    isHoveringRight = (mouseX >= 336 && mouseX <= 624 && mouseY >= 176 && mouseY <= 256);
     const SDL_Color right_color = (isHoveringRight || choice == 2) ? cga_color_3 : cga_color_2;
     R_DrawText("┌────────────────┐", 336, 176, right_color);
     R_DrawText("│                │", 336, 192, right_color);

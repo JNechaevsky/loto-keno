@@ -63,6 +63,11 @@ TTF_Font *font = NULL;
 bool screen_refresh = true; // Требуется ли перерисовка кадра на следующем тике?
 bool screen_visible = true; // Виденно ли окно программы (т.е. не минимизировано)?
 
+static float mouseX = 0.0f; // Позиция курсора на экране (ось X)
+static float mouseY = 0.0f; // Позиция курсора на экране (ось Y)
+bool isHoveringLeft;  // Курсор мыши наведён на Будь-будь-будь!
+bool isHoveringRight; // Курсор мыши наведён на А-ОООО-ООО-Оо!
+
 // Переменные для конфигурационного файла:
 int language = 0;     // Язык игры: 0 = English, 1 = Deutsch, 2 = Русский
 int fullscreen = 0;   // Полноэкранный режим
@@ -83,9 +88,6 @@ bool gameHna = false;     // Появился самурай? (ХНА!)
 bool gameOver = false;    // Игра окончена?
 bool gameStarted = false; // Игра начата?
 bool gameHelp = false;    // Отображается экран помощи?
-
-bool isHoveringLeft;  // Курсор мыши наведён на Будь-будь-будь!
-bool isHoveringRight; // Курсор мыши наведён на А-ОООО-ООО-Оо!
 
 // Цвета CGA для режима 320x200
 SDL_Color cga_color_0;  // Чёрный
@@ -174,10 +176,33 @@ static void HandleMouseEvents (SDL_Event *event)
     static int mousePressed = 0; // [PN] Отслеживание нажатия кнопки мыши
 
     // [PN] Обновить экран при движении мыши, нажатии кнопки или скролле
-    if (event->type == SDL_MOUSEMOTION || event->type == SDL_MOUSEBUTTONDOWN
-    || (event->type == SDL_MOUSEWHEEL && gameStarted && !gameOver))
+    if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEWHEEL)
     {
         screen_refresh = true;
+    }
+    else
+    if (event->type == SDL_MOUSEMOTION && gameStarted && !gameOver)
+    {
+        // Обновляем координаты мыши
+        int realX, realY;
+        SDL_GetMouseState(&realX, &realY);
+        SDL_RenderWindowToLogical(renderer, realX, realY, &mouseX, &mouseY);
+
+        // [PN/JN] Определение наведения курсора на рамки выбора
+        isHoveringLeft = (mouseX >= 16 && mouseX <= 320 && mouseY >= 176 && mouseY <= 256);
+        isHoveringRight = (mouseX >= 336 && mouseX <= 624 && mouseY >= 176 && mouseY <= 256);
+
+        // [PN] Для отслеживания изменений наведения — предыдущие состояния рамок
+        static bool lastHoverLeft = false;
+        static bool lastHoverRight = false;
+
+        // [PN/JN] Обновление экрана происходит только при изменении наведения на рамки
+        if (isHoveringLeft != lastHoverLeft || isHoveringRight != lastHoverRight)
+        {
+            screen_refresh = true;
+            lastHoverLeft = isHoveringLeft;
+            lastHoverRight = isHoveringRight;
+        }
     }
 
     // [PN] Обработка колёсика мыши (ставка)

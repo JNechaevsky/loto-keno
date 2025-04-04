@@ -135,6 +135,9 @@ extern TTF_Font *font;
 extern bool screen_refresh;
 extern bool screen_visible;
 
+extern bool isHoveringLeft;
+extern bool isHoveringRight;
+
 extern SDL_Color cga_color_0;
 extern SDL_Color cga_color_1;
 extern SDL_Color cga_color_2;
@@ -153,6 +156,3 @@ extern bool gameHna;
 extern bool gameOver;
 extern bool gameStarted;
 extern bool gameHelp;
-
-extern bool isHoveringLeft;
-extern bool isHoveringRight;
