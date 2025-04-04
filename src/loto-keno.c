@@ -21,33 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+/*
+Компиляция под Windows / MSYS (GCC):
+  windres loto-keno.rc -o loto-keno.o
+    gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe  \
+    -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lgdi32 -mwindows
 
-// Компиляция под Windows / MSYS (GCC):
-//   windres loto-keno.rc -o loto-keno.o
-//     gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe  \
-//     -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lgdi32 -mwindows
-//
-// Компиляция под Windows / MSYS (CMake):
-//   Быстрая конфигурация:
-//     cmake -G "Ninja" -D CMAKE_BUILD_TYPE="Release" -S . -B build
-//   Оптимизированная конфигурация:
-//     cmake -G "Ninja" -D CMAKE_BUILD_TYPE="Release" -D \
-//     CMAKE_C_FLAGS_RELEASE="-O3 -s -flto -fno-math-errno \
-//     -fomit-frame-pointer -funroll-loops -DNDEBUG" -S . -B build
-//   Компиляция:
-//     cmake --build build
-//
-// Компиляция под Windows / Build Tools + VCPKG:
-//   Конфигурация:
-//     make -B build_vs_64 -G "Ninja" -DCMAKE_BUILD_TYPE=Release \
-//     DCMAKE_TOOLCHAIN_FILE=R:/VCPKG/scripts/buildsystems/vcpkg.cmake \
-//     DCMAKE_PREFIX_PATH=R:/VCPKG/installed/x64-windows
-//   Компиляция:
-//     cmake --build build_vs_64 --config Release --parallel
-//
-// Компиляция под Linux:
-//   gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe \
-//   -lSDL2main -lSDL2 -lSDL2_ttf
+Компиляция под Windows / MSYS (CMake):
+  Быстрая конфигурация:
+    cmake -G "Ninja" -D CMAKE_BUILD_TYPE="Release" -S . -B build
+  Оптимизированная конфигурация:
+    cmake -G "Ninja" -D CMAKE_BUILD_TYPE="Release" -D \
+    CMAKE_C_FLAGS_RELEASE="-O3 -s -flto -fno-math-errno \
+    -fomit-frame-pointer -funroll-loops -DNDEBUG" -S . -B build
+  Компиляция:
+    cmake --build build
+
+Компиляция под Windows / Build Tools + VCPKG:
+  Конфигурация:
+    make -B build_vs_64 -G "Ninja" -DCMAKE_BUILD_TYPE=Release \
+    DCMAKE_TOOLCHAIN_FILE=R:/VCPKG/scripts/buildsystems/vcpkg.cmake \
+    DCMAKE_PREFIX_PATH=R:/VCPKG/installed/x64-windows
+  Компиляция:
+    cmake --build build_vs_64 --config Release --parallel
+
+Компиляция под Linux:
+  gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe \
+  -lSDL2main -lSDL2 -lSDL2_ttf
+*/
 
 
 #include "loto-keno.h"
@@ -97,6 +98,71 @@ SDL_Color cga_color_3;  // Белый или жёлтый
 //   0  16  32  48  64  80  96 112 128 144 160 176 192
 //     208 224 240 256 272 288 304 320 336 352 368 384 
 
+
+// -----------------------------------------------------------------------------
+// Функции файла с настройками.
+// -----------------------------------------------------------------------------
+
+static const char *GetConfigPath (void)
+{
+#ifdef _WIN32
+    // [PN] Для Windows — просто текущий каталог.
+    return "loto-keno.ini";
+#else
+    const char* homeDir = getenv("HOME");
+    if (!homeDir) homeDir = ".";
+
+    static char path[256];
+    snprintf(path, sizeof(path), "%s/.local/share/loto-keno", homeDir);
+
+    // [PN] Проверяем и создаём каталог, если его ещё нет
+    struct stat st = {0};
+    if (stat(path, &st) == -1) {
+        mkdir(path, 0700);
+    }
+
+    static char fullPath[512];
+    snprintf(fullPath, sizeof(fullPath), "%s/loto-keno.ini", path);
+    return fullPath;
+#endif
+}
+
+static void LoadConfig (void)
+{
+    FILE *file = fopen(GetConfigPath(), "r");
+    if (!file) return;
+
+    // [JN] Чтение параметров с проверкой успешности fscanf
+    #define READ_OR_DEFAULT(var, def) if (fscanf(file, #var " %d\n", &var) != 1) var = def
+    READ_OR_DEFAULT(language, 0);
+    READ_OR_DEFAULT(fullscreen, 0);
+    READ_OR_DEFAULT(color_scheme, 0);
+    READ_OR_DEFAULT(window_x, SDL_WINDOWPOS_CENTERED);
+    READ_OR_DEFAULT(window_y, SDL_WINDOWPOS_CENTERED);
+    READ_OR_DEFAULT(window_width, SCREENWIDTH);
+    READ_OR_DEFAULT(window_height, SCREENHEIGHT);
+    #undef READ_OR_DEFAULT
+
+    fclose(file);
+}
+
+static void SaveConfig (void)
+{
+    FILE *file = fopen(GetConfigPath(), "w");
+    if (!file) return;
+
+    #define WRITE(var) fprintf(file, "%-18s %d\n", #var, var)
+    WRITE(language);
+    WRITE(fullscreen);
+    WRITE(color_scheme);
+    WRITE(window_x);
+    WRITE(window_y);
+    WRITE(window_width);
+    WRITE(window_height);
+    #undef WRITE
+
+    fclose(file);
+}
 
 // -----------------------------------------------------------------------------
 // HandleMouseEvents
@@ -199,7 +265,7 @@ static void HandleKeyboardEvents (SDL_Event *event)
     }
 
     if (key == SDLK_F4  // [PN/JN] Переключение полноэкранного режима
-    || (key == SDLK_RETURN || key == SDLK_KP_ENTER) && (mod & KMOD_ALT))
+    || ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && (mod & KMOD_ALT)))
     {
         fullscreen ^= 1;
         SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
@@ -360,71 +426,6 @@ static void D_KenoLoop (void)
         // Мы используем SDL_Delay(28), чтобы поддерживать стабильный FPS и снизить нагрузку на процессор.
         SDL_Delay(28);
     }
-}
-
-// -----------------------------------------------------------------------------
-// Функции файла с настройками.
-// -----------------------------------------------------------------------------
-
-static const char *GetConfigPath (void)
-{
-#ifdef _WIN32
-    // [PN] Для Windows — просто текущий каталог.
-    return "loto-keno.ini";
-#else
-    const char* homeDir = getenv("HOME");
-    if (!homeDir) homeDir = ".";
-
-    static char path[256];
-    snprintf(path, sizeof(path), "%s/.local/share/loto-keno", homeDir);
-
-    // [PN] Проверяем и создаём каталог, если его ещё нет
-    struct stat st = {0};
-    if (stat(path, &st) == -1) {
-        mkdir(path, 0700);
-    }
-
-    static char fullPath[512];
-    snprintf(fullPath, sizeof(fullPath), "%s/loto-keno.ini", path);
-    return fullPath;
-#endif
-}
-
-static void LoadConfig (void)
-{
-    FILE *file = fopen(GetConfigPath(), "r");
-    if (!file) return;
-
-    // [JN] Чтение параметров с проверкой успешности fscanf
-    #define READ_OR_DEFAULT(var, def) if (fscanf(file, #var " %d\n", &var) != 1) var = def
-    READ_OR_DEFAULT(language, 0);
-    READ_OR_DEFAULT(fullscreen, 0);
-    READ_OR_DEFAULT(color_scheme, 0);
-    READ_OR_DEFAULT(window_x, SDL_WINDOWPOS_CENTERED);
-    READ_OR_DEFAULT(window_y, SDL_WINDOWPOS_CENTERED);
-    READ_OR_DEFAULT(window_width, SCREENWIDTH);
-    READ_OR_DEFAULT(window_height, SCREENHEIGHT);
-    #undef READ_OR_DEFAULT
-
-    fclose(file);
-}
-
-static void SaveConfig (void)
-{
-    FILE *file = fopen(GetConfigPath(), "w");
-    if (!file) return;
-
-    #define WRITE(var) fprintf(file, "%-18s %d\n", #var, var)
-    WRITE(language);
-    WRITE(fullscreen);
-    WRITE(color_scheme);
-    WRITE(window_x);
-    WRITE(window_y);
-    WRITE(window_width);
-    WRITE(window_height);
-    #undef WRITE
-
-    fclose(file);
 }
 
 // -----------------------------------------------------------------------------

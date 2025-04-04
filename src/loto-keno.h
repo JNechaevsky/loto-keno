@@ -156,5 +156,3 @@ extern bool gameHelp;
 
 extern bool isHoveringLeft;
 extern bool isHoveringRight;
-
-static void SaveConfig (void);

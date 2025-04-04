@@ -40,26 +40,6 @@ const char *G_GetTitleQuote (int randomize)
     return lang_title_quote[randomQuoteIndex];
 }
 
-static const char *G_GetWinQuote (int randomize)
-{
-    static int randomWinQuoteIndex = 0;
-
-    if (randomize)
-        randomWinQuoteIndex = rand() % lang_game_quote_win_size;
-
-    return lang_game_win_quote[randomWinQuoteIndex];
-}
-
-static const char *G_GetLooseQuote (int randomize)
-{
-    static int randomLooseQuoteIndex = 0;
-
-    if (randomize)
-        randomLooseQuoteIndex = rand() % lang_game_quote_loose_size;
-
-    return lang_game_loose_quote[randomLooseQuoteIndex];
-}
-
 // -----------------------------------------------------------------------------
 // G_ResetGame
 //  Сброс состояния игры
