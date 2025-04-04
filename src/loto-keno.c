@@ -404,7 +404,7 @@ static void HandleWindowEvents (SDL_WindowEvent *event)
 static void D_KenoLoop (void)
 {
     SDL_Event event;
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 
     int running = 1;
     while (running)
