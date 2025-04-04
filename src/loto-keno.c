@@ -434,6 +434,12 @@ static void D_KenoLoop (void)
 
 int main (int argc, char *argv[])
 {
+    // [PN] Параметры командной строки используются на Windows (например, -console),
+    // поэтому они обязательно сохраняются. На других платформах могут быть не нужны,
+    // но объявлены сознательно. Эти строки подавляют варнинги об их неиспользовании.
+    (void)argc;
+    (void)argv;
+
     int window_flags = 0, renderer_flags = 0;
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1)
