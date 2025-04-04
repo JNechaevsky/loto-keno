@@ -211,7 +211,7 @@ static void R_DrawGameField (void)
     int realX, realY;
     float mouseX, mouseY;
     SDL_GetMouseState(&realX, &realY);
-    SDL_RenderWindowToLogical(renderer, (float)realX, (float)realY, &mouseX, &mouseY);
+    SDL_RenderWindowToLogical(renderer, realX, realY, &mouseX, &mouseY);
 
     isHoveringLeft = (mouseX >= 16 && mouseX <= 320 && mouseY >= 176 && mouseY <= 256);
     const SDL_Color left_color = (isHoveringLeft || choice == 1) ? cga_color_3 : cga_color_2;

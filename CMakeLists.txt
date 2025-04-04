@@ -7,7 +7,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Предупреждения компилятора
 if(MSVC)
-    # TODO? add_compile_options(/W4 /WX)
+    add_compile_options(/W4 /WX /D_CRT_SECURE_NO_WARNINGS)
 else()
     add_compile_options("-Wall"
                         "-Wredundant-decls"
