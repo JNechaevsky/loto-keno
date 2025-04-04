@@ -462,7 +462,7 @@ int main (int argc, char *argv[])
         {
             typedef BOOL (WINAPI *DPIAWARENESSFUNC)(void);
             DPIAWARENESSFUNC SetProcessDPIAware = 
-                (DPIAWARENESSFUNC)GetProcAddress(user32, "SetProcessDPIAware");
+                (DPIAWARENESSFUNC)(uintptr_t)GetProcAddress(user32, "SetProcessDPIAware");
             if (SetProcessDPIAware)
                 SetProcessDPIAware();
             FreeLibrary(user32);
