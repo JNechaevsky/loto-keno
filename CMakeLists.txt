@@ -22,7 +22,8 @@ if (MSVC)
     set(CMAKE_C_FLAGS_RELEASE "/MD /O2 /Ob2 /DNDEBUG /GL /Oy")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
 else()
-    set(CMAKE_C_FLAGS_RELEASE "-O3 -s -flto -fno-math-errno -fomit-frame-pointer -funroll-loops -DNDEBUG")
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -flto -fno-math-errno -fomit-frame-pointer -funroll-loops -DNDEBUG")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")
 endif()
 
 # Исходные файлы
