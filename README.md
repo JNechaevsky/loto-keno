@@ -22,6 +22,13 @@ Just... play. It doesn't explain itself. It barely makes sense. That's part of t
 
 Try not to lose all your points. Or do. Who's judging?
 
+**Controls:**
+
+* <kbd>←</kbd> and <kbd>→</kbd> — switch between "Blub-blub-blub!" and "A-OOOH-OOH-Oh!"
+* <kbd>↑</kbd> and <kbd>↓</kbd> — increase or decrease your bet
+* <kbd>ENTER</kbd> — confirm your selection
+* You can also use the mouse to choose a side and adjust the bet with the scroll wheel.
+
 ## Notes
 - All assets are embedded.
 - Help screen may or may not help (F1) .
@@ -36,4 +43,5 @@ The project is available under [The MIT License](https://opensource.org/license/
 - [Polina "Aura" N.](https://github.com/pvictress) — primary author, developer, co-architect
 - [Julia Nechaevskaya](http://github.com/jnechaevsky/) — co-author, idea originator, creator of the original 2005 concept
 
-✨ _Sometimes the best ideas are the ones that make no sense. And sometimes, all they need is someone to ask: “Do you have something left unrealized?”_ ✨
+✨ _Sometimes the best ideas are the ones that make no sense.
+<br>And sometimes, all they need is someone to ask: “Do you have something left unrealized?”_ ✨
