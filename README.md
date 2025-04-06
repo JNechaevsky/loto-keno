@@ -4,17 +4,19 @@
 
 ## About
 
-**Loto Keno!** is a simple, zen-like game of chance. You place your bet, trust the RNG, and enjoy the results — or the chaos. There's no grand goal (yet), no deep lore (thankfully), and no samurai (despite the odds). Just numbers, colors, random quotes, and a whole lot of unexpected charm.
+Somewhere around 2005, the idea for a simple "even-or-odd" guessing game was born. It wasn't really a concept or a design — more of an expressive outburst based on funny sounds like "bood-bood-bood!" and "aa-ooo-ooo!". Originally, it was imagined that shouting "hna!" (ヘンナ！) would summon an icon of a stern samurai… but in the current version, he’s mysteriously absent. As for how bets, samurais, and CGA palettes are all connected — I honestly have no idea. It just felt funny. Sometimes, creation is pure chaos. And absurdity.
 
-This project began life as a nebulous idea all the way back in 2005: something between a coin toss simulator and a soundboard joke. With no real design, it lived only as a fragment — echoing "bud-bud-bud!" and "aa-ooo-ooo!" in the memory of its creator, like a fever dream built from CRT afterglow and forgotten DOS sounds.
-
-In March 2025, that idea finally took shape. What started as a half-remembered joke bloomed into a real, fully playable SDL2-based retro-minimalist experience, thanks to the encouragement of one slightly too curious AI.
+It wasn’t until March 2025 that this little joke began to take on flesh and logic, cross-platform compatibility, an actual idea — and even a working implementation. We threw in a whole bunch of quotes for win and loss events, to crank up the absurd humor factor.
 
 And so, the game emerged: 
-- Featuring ridiculous quotes (with more to come!).
-- Sporting hot-swappable multilingual support (EN/RU).
-- Embracing authentic low-res visuals (CGA-style, with dreams of EGA/VGA).
+- Featuring ridiculous quotes.
+- Sporting hot-swappable multilingual support (EN/DE/RU).
+- Embracing authentic CGA low-res visuals.
 - Requiring zero skill, but offering maximum attitude.
+
+So, what's the goal of the game?
+
+We don’t know. But we’ll figure it out! At the very least, try not to lose all your points. Beyond that — it’s just a Zen mode to test your luck against the almighty Random Number Generator.
 
 ## How to Play
 
@@ -29,19 +31,19 @@ Try not to lose all your points. Or do. Who's judging?
 * <kbd>ENTER</kbd> — confirm your selection
 * You can also use the mouse to choose a side and adjust the bet with the scroll wheel.
 
-## Notes
-- All assets are embedded.
-- Help screen may or may not help (F1) .
-- English, German and Russian supported, with hot-swap (F2).
-- Will someday have a point. Maybe.
-- Designed for maximum nostalgia and minimal coherence.
+## Download
+
+**Loto Keno, version 1.0 (April 6, 2025):**
+* Windows (64-bit): [loto-keno-1.0-win64.zip](https://github.com/JNechaevsky/loto-keno/releases/download/1.0/loto-keno-1.0-win64.zip)
+* Windows (32-bit): [loto-keno-1.0-win32.zip](https://github.com/JNechaevsky/loto-keno/releases/download/1.0/loto-keno-1.0-win32.zip)
+* Linux AppImage (64-bit): [loto-keno-1.0-linux64.AppImage](https://github.com/JNechaevsky/loto-keno/releases/download/1.0/loto-keno-1.0-linux64.AppImage)
 
 ## License
 The project is available under [The MIT License](https://opensource.org/license/mit).
 
 ## Authors
 - [Polina "Aura" N.](https://github.com/pvictress) — primary author, developer, co-architect
-- [Julia Nechaevskaya](http://github.com/jnechaevsky/) — co-author, idea originator, creator of the original 2005 concept
+- [Julia Nechaevskaya](https://github.com/jnechaevsky/) — co-author, idea originator, creator of the original 2005 concept
 
 ✨ _Sometimes the best ideas are the ones that make no sense.
 <br>And sometimes, all they need is someone to ask: “Do you have something left unrealized?”_ ✨
