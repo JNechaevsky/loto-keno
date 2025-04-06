@@ -2478,7 +2478,8 @@ static const char *txt_game_loose_quotes_rus[] = {
 //
 // Game over
 //
-const char *lang_over_game;
+const char *lang_over_loose;
+const char *lang_over_win;
 const char *lang_over_rounds;
 const char *lang_over_max_score;
 const char *lang_over_enter;
@@ -2519,7 +2520,8 @@ void L_SetLanguageStrings (void)
             lang_game_loose_quote = txt_game_loose_quotes_eng;
             lang_game_quote_loose_size = sizeof(txt_game_loose_quotes_eng) / sizeof(txt_game_loose_quotes_eng[0]);
 
-            lang_over_game      = "GAME OVER";
+            lang_over_loose     = "GAME OVER";
+            lang_over_win       = "VICTORY!";
             lang_over_rounds    = "       Rounds played:";
             lang_over_max_score = "         Highest win:";
             lang_over_enter     = "Press ENTER to restart";
@@ -2551,7 +2553,8 @@ void L_SetLanguageStrings (void)
             lang_game_loose_quote = txt_game_loose_quotes_ger;
             lang_game_quote_loose_size = sizeof(txt_game_loose_quotes_ger) / sizeof(txt_game_loose_quotes_ger[0]);
 
-            lang_over_game      = "SPIEL VORBEI";
+            lang_over_loose     = "SPIEL VORBEI";
+            lang_over_win       = "SIEG!";
             lang_over_rounds    = "       Gespielte Runden:";
             lang_over_max_score = "        Höchster Gewinn:";
             lang_over_enter     = "Drücken Sie ENTER zum Neustart";
@@ -2583,7 +2586,8 @@ void L_SetLanguageStrings (void)
             lang_game_loose_quote = txt_game_loose_quotes_rus;
             lang_game_quote_loose_size = sizeof(txt_game_loose_quotes_rus) / sizeof(txt_game_loose_quotes_rus[0]);
 
-            lang_over_game      = "ИГРА ЗАКОНЧЕНА";
+            lang_over_loose     = "ИГРА ЗАКОНЧЕНА";
+            lang_over_win       = "ПОБЕДА!";
             lang_over_rounds    = "        Сыграно раундов:";
             lang_over_max_score = "   Максимальный выигрыш:";
             lang_over_enter     = "Нажмите ENTER для перезапуска";

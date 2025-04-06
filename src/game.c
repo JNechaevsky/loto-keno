@@ -112,6 +112,11 @@ void G_DetermineResult (void)
         gameOver = 1;
     }
     else
+    if (score > 999999999)
+    {
+        gameOver = 2;
+    }
+    else
     {
         G_StartNewRound();
     }

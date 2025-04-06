@@ -109,7 +109,8 @@ extern int lang_game_quote_win_size;
 extern int lang_game_quote_loose_size;
 
 // Game over
-extern const char *lang_over_game;
+extern const char *lang_over_loose;
+extern const char *lang_over_win;
 extern const char *lang_over_rounds;
 extern const char *lang_over_max_score;
 extern const char *lang_over_enter;
@@ -153,6 +154,6 @@ extern int rounds;
 extern int choice;
 
 extern bool gameHna;
-extern bool gameOver;
 extern bool gameStarted;
 extern bool gameHelp;
+extern int  gameOver;

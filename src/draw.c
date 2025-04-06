@@ -293,7 +293,28 @@ static void R_DrawGameField (void)
 
 static void R_DrawGameOverScreen (void)
 {
-    R_DrawTextCentered(lang_over_game, 144, cga_color_3);
+    R_DrawTextCentered(lang_over_loose, 144, cga_color_3);
+
+    char roundsText[64];
+    sprintf(roundsText, "%s %d", lang_over_rounds, rounds);
+    R_DrawText(roundsText, 64, 192, cga_color_2);
+    
+    char scoreText[64];
+    sprintf(scoreText, "%s %d", lang_over_max_score, maxScore);
+    R_DrawText(scoreText, 64, 224, cga_color_2);
+
+    R_DrawTextCentered(lang_over_enter, 304, cga_color_1);
+}
+
+// -----------------------------------------------------------------------------
+// R_DrawGameWinScreen
+//  Отрисовка победного экрана.
+// -----------------------------------------------------------------------------
+
+static void R_DrawGameWinScreen (void)
+{
+    R_DrawTextCentered(lang_over_win, 144, cga_color_3);
+
 
     char roundsText[64];
     sprintf(roundsText, "%s %d", lang_over_rounds, rounds);
@@ -323,8 +344,10 @@ void R_FinishUpdate (void)
         R_DrawHelpScreen();
     else if (!gameStarted)
         R_DrawTitleScreen();
-    else if (gameOver)
+    else if (gameOver == 1)
         R_DrawGameOverScreen();
+    else if (gameOver == 2)
+        R_DrawGameWinScreen();
     else
         R_DrawGameField();
 

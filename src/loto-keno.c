@@ -85,9 +85,9 @@ int rounds = 0;    // Игровой раунд (round - переменная я
 int choice = 0;    // 0 = Ещё не сделана, 1 = Будь-будь-будь!, 2 = А-ОООО-ООО-Оо!
 
 bool gameHna = false;     // Появился самурай? (ХНА!)
-bool gameOver = false;    // Игра окончена?
 bool gameStarted = false; // Игра начата?
 bool gameHelp = false;    // Отображается экран помощи?
+int  gameOver = 0;        // 0 = игра в процессе, 1 = game over, 2 = game victory
 
 // Цвета CGA для режима 320x200
 SDL_Color cga_color_0;  // Чёрный
