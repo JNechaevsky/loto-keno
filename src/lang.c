@@ -2497,7 +2497,7 @@ void L_SetLanguageStrings (void)
         case 0:  // English
             SDL_SetWindowTitle(window, "Loto Keno!");
             lang_title_name          = "Loto Keno!";
-            lang_title_version       = "Version 1.0 (03/18/2025)"; // MM/DD/YYYY
+            lang_title_version       = "Version 1.0 (04/06/2025)"; // MM/DD/YYYY
             lang_title_developed_by  = "Developed and designed by:";
             lang_title_authors       = "Polina \"Aura\" N. ♥ Julia Nechaevskaya";
             lang_title_key_f1        = "F1 - Help     F2 - Language";
@@ -2530,7 +2530,7 @@ void L_SetLanguageStrings (void)
         case 1:  // Deutsch
             SDL_SetWindowTitle(window, "Loto Keno!");
             lang_title_name          = "Loto Keno!";
-            lang_title_version       = "Version 1.0 (18.03.2025)"; // DD.MM.YYYY
+            lang_title_version       = "Version 1.0 (06.04.2025)"; // DD.MM.YYYY
             lang_title_developed_by  = "Entwicklung & Idee:";
             lang_title_authors       = "Polina \"Aura\" N. ♥ Julia Nechaevskaya";
             lang_title_key_f1        = "F1 - Hilfe    F2 - Sprache";
@@ -2563,7 +2563,7 @@ void L_SetLanguageStrings (void)
         case 2:  // Русский
             SDL_SetWindowTitle(window, "Лото Кено!");
             lang_title_name          = "Лото Кено!";
-            lang_title_version       = "Версия 1.0 (18.03.2025)"; // DD.MM.YYYY
+            lang_title_version       = "Версия 1.0 (06.04.2025)"; // DD.MM.YYYY
             lang_title_developed_by  = "Разработка и идея:";
             lang_title_authors       = "Полина \"Аура\" Н. ♥ Юлия Нечаевская";
             lang_title_key_f1        = "F1 - Помощь   F2 - Язык";
