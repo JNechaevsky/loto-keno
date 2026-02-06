@@ -25,7 +25,7 @@
 Компиляция под Windows / MSYS (GCC):
   windres loto-keno.rc -o loto-keno.o
     gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe  \
-    -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lgdi32 -mwindows
+    -lmingw32 -lSDL3main -lSDL3 -lSDL3_ttf -lgdi32 -mwindows
 
 Компиляция под Windows / MSYS (CMake):
   Быстрая конфигурация:
@@ -47,7 +47,7 @@
 
 Компиляция под Linux:
   gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe \
-  -lSDL2main -lSDL2 -lSDL2_ttf
+  -lSDL3main -lSDL3 -lSDL3_ttf
 */
 
 
@@ -176,17 +176,17 @@ static void HandleMouseEvents (SDL_Event *event)
     static int mousePressed = 0; // [PN] Отслеживание нажатия кнопки мыши
 
     // [PN] Обновить экран при движении мыши, нажатии кнопки или скролле
-    if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEWHEEL)
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN || event->type == SDL_EVENT_MOUSE_WHEEL)
     {
         screen_refresh = true;
     }
     else
-    if (event->type == SDL_MOUSEMOTION && gameStarted && !gameOver)
+    if (event->type == SDL_EVENT_MOUSE_MOTION && gameStarted && !gameOver)
     {
         // Обновляем координаты мыши
-        int realX, realY;
+        float realX, realY;
         SDL_GetMouseState(&realX, &realY);
-        SDL_RenderWindowToLogical(renderer, realX, realY, &mouseX, &mouseY);
+        SDL_RenderCoordinatesFromWindow(renderer, realX, realY, &mouseX, &mouseY);
 
         // [PN/JN] Определение наведения курсора на рамки выбора
         isHoveringLeft = (mouseX >= 16 && mouseX <= 320 && mouseY >= 176 && mouseY <= 256);
@@ -206,14 +206,14 @@ static void HandleMouseEvents (SDL_Event *event)
     }
 
     // [PN] Обработка колёсика мыши (ставка)
-    if (event->type == SDL_MOUSEWHEEL && gameStarted && !gameOver)
+    if (event->type == SDL_EVENT_MOUSE_WHEEL && gameStarted && !gameOver)
     {
         if (event->wheel.y != 0) // Увеличиваем или уменьшаем ставку
             bet = SDL_clamp(bet + event->wheel.y, 1, score);
     }
 
     // [PN] Обработка нажатия ЛКМ
-    if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && !mousePressed)
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT && !mousePressed)
     {
         mousePressed = 1; // [PN] Фиксируем нажатие кнопки
 
@@ -247,7 +247,7 @@ static void HandleMouseEvents (SDL_Event *event)
     }
 
     // [PN] Сбрасываем нажатие ЛКМ
-    if (event->type == SDL_MOUSEBUTTONUP && event->button.button == SDL_BUTTON_LEFT)
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_UP && event->button.button == SDL_BUTTON_LEFT)
     {
         mousePressed = 0;
     }
@@ -260,11 +260,11 @@ static void HandleMouseEvents (SDL_Event *event)
 
 static void HandleKeyboardEvents (SDL_Event *event)
 {
-    if (event->type != SDL_KEYDOWN)
+    if (event->type != SDL_EVENT_KEY_DOWN)
         return;
 
-    SDL_Keycode key = event->key.keysym.sym;
-    const Uint16 mod = event->key.keysym.mod;
+    SDL_Keycode key = event->key.key;
+    const SDL_Keymod mod = event->key.mod;
 
     // [JN] Нажатие любой клавиши перерисовывает экран.
     screen_refresh = true;
@@ -290,14 +290,14 @@ static void HandleKeyboardEvents (SDL_Event *event)
     }
 
     if (key == SDLK_F4  // [PN/JN] Переключение полноэкранного режима
-    || ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && (mod & KMOD_ALT)))
+    || ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && (mod & SDL_KMOD_ALT)))
     {
         fullscreen ^= 1;
-        SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+        SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 
         // Перемещение курсора в центр экрана.
         int screen_width, screen_height;
-        SDL_GetRendererOutputSize(renderer, &screen_width, &screen_height);
+        SDL_GetRenderOutputSize(renderer, &screen_width, &screen_height);
         SDL_WarpMouseInWindow(window, screen_width / 2, screen_height / 2);
         return;
     }
@@ -356,68 +356,67 @@ static void HandleKeyboardEvents (SDL_Event *event)
 //  Обработка событий окна.
 // -----------------------------------------------------------------------------
 
-static void HandleWindowEvents (SDL_WindowEvent *event)
+static void HandleWindowEvents (SDL_Event *event)
 {
-    if (event->type == SDL_WINDOWEVENT)
+    switch (event->type)
     {
-        switch (event->event)
-        {
-            case SDL_WINDOWEVENT_MINIMIZED:
-                screen_visible = 0;
-                break;
-    
-            case SDL_WINDOWEVENT_RESTORED:
-            case SDL_WINDOWEVENT_SHOWN:
-                screen_visible = 1;
-                break;
+        case SDL_EVENT_WINDOW_MINIMIZED:
+            screen_visible = 0;
+            break;
 
-            case SDL_WINDOWEVENT_MOVED:
-                if (!fullscreen)
+        case SDL_EVENT_WINDOW_RESTORED:
+        case SDL_EVENT_WINDOW_SHOWN:
+            screen_visible = 1;
+            break;
+
+        case SDL_EVENT_WINDOW_MOVED:
+            if (!fullscreen)
+            {
+                // [PN] Получение позиции окна при перемещении
+                SDL_GetWindowPosition(window, &window_x, &window_y);
+            }
+            break;
+
+        case SDL_EVENT_WINDOW_RESIZED:
+        case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+            if (!fullscreen)
+            {
+                // [PN] Проверка, максимально ли окно в данный момент:
+                Uint32 flags = SDL_GetWindowFlags(window);
+                if (flags & SDL_WINDOW_MAXIMIZED)
                 {
-                    // [PN] Получение позиции окна при перемещении
-                    SDL_GetWindowPosition(window, &window_x, &window_y);
+                    // [PN] Если окно максимизировано, пропорцию не трогаем,
+                    // просто сохраняем размеры как есть:
+                    window_width = event->window.data1;
+                    window_height = event->window.data2;
                 }
-                break;
-
-            case SDL_WINDOWEVENT_RESIZED:
-            case SDL_WINDOWEVENT_SIZE_CHANGED:
-                if (!fullscreen)
+                else
                 {
-                    // [PN] Проверка, максимально ли окно в данный момент:
-                    Uint32 flags = SDL_GetWindowFlags(window);
-                    if (flags & SDL_WINDOW_MAXIMIZED)
+                    const float aspect_ratio = (float)SCREENWIDTH / SCREENHEIGHT;
+                    int new_width = event->window.data1;
+                    int new_height = event->window.data2;
+                    const int delta_width = abs(new_width - window_width);
+                    const int delta_height = abs(new_height - window_height);
+
+                    if (delta_width > delta_height) // [PN] изменили ширину
                     {
-                        // [PN] Если окно максимизировано, пропорцию не трогаем,
-                        // просто сохраняем размеры как есть:
-                        window_width = event->data1;
-                        window_height = event->data2;
+                        new_height = (int)(new_width / aspect_ratio);
                     }
-                    else
+                    else // [PN] изменили высоту
                     {
-                        const float aspect_ratio = (float)SCREENWIDTH / SCREENHEIGHT;
-                        int new_width = event->data1;
-                        int new_height = event->data2;
-                        const int delta_width = abs(new_width - window_width);
-                        const int delta_height = abs(new_height - window_height);
-
-                        if (delta_width > delta_height) // [PN] изменили ширину
-                        {
-                            new_height = (int)(new_width / aspect_ratio);
-                        }
-                        else // [PN] изменили высоту
-                        {
-                            new_width = (int)(new_height * aspect_ratio);
-                        }
-
-                        SDL_SetWindowSize(window, new_width, new_height);
-
-                        window_width = new_width;
-                        window_height = new_height;
+                        new_width = (int)(new_height * aspect_ratio);
                     }
+
+                    SDL_SetWindowSize(window, new_width, new_height);
+
+                    window_width = new_width;
+                    window_height = new_height;
                 }
-                screen_refresh = true;
-                break;
-        }
+            }
+            screen_refresh = true;
+            break;
+        default:
+            break;
     }
 }
 
@@ -436,12 +435,12 @@ static void D_KenoLoop (void)
     {
         while (SDL_PollEvent(&event))
         {
-            if (event.type == SDL_QUIT)
+            if (event.type == SDL_EVENT_QUIT)
                 running = 0;
 
             HandleMouseEvents(&event);
             HandleKeyboardEvents(&event);
-            HandleWindowEvents(&event.window);
+            HandleWindowEvents(&event);
         }
 
         R_FinishUpdate();
@@ -465,9 +464,9 @@ int main (int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    int window_flags = 0, renderer_flags = 0;
+    int window_flags = 0;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() == -1)
+    if (!SDL_Init(SDL_INIT_VIDEO) || !TTF_Init())
     {
         return 1;
     }
@@ -511,12 +510,17 @@ int main (int argc, char *argv[])
     LoadConfig();
 
     window_flags = SDL_WINDOW_RESIZABLE;
-    window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+    window_flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
     if (fullscreen)
-    window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+    {
+        window_flags |= SDL_WINDOW_FULLSCREEN;
+    }
 
-    window = SDL_CreateWindow("", window_x, window_y, 
-                              window_width, window_height, window_flags);
+    window = SDL_CreateWindow("", window_width, window_height, window_flags);
+    if (!fullscreen)
+    {
+        SDL_SetWindowPosition(window, window_x, window_y);
+    }
 
     // [JN] Присвоение иконки для окна.
     // Не требуется для Windows, т.к. используется .ico файл из loto-keno.rc
@@ -533,15 +537,15 @@ int main (int argc, char *argv[])
     // [JN] Минимальный размер окна
     SDL_SetWindowMinimumSize(window, SCREENWIDTH/2, SCREENHEIGHT/2);
 
-    renderer_flags = SDL_RENDERER_TARGETTEXTURE;
-    renderer_flags |= SDL_RENDERER_PRESENTVSYNC;
-    renderer = SDL_CreateRenderer(window, -1, renderer_flags);
+    renderer = SDL_CreateRenderer(window, NULL);
+    SDL_SetRenderVSync(renderer, 1);
 
-    SDL_RenderSetLogicalSize(renderer, SCREENWIDTH, SCREENHEIGHT);
+    SDL_SetRenderLogicalPresentation(renderer, SCREENWIDTH, SCREENHEIGHT,
+                                     SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     // [PN] Загрузка шрифта, встроенного в код (font.c)
-    SDL_RWops *rw = SDL_RWFromMem(ibm_vga_data, ibm_vga_data_len);
-    font = TTF_OpenFontRW(rw, 0, FONT_SIZE);
+    SDL_IOStream *rw = SDL_IOFromMem(ibm_vga_data, ibm_vga_data_len);
+    font = TTF_OpenFontIO(rw, 1, FONT_SIZE);
 
     // [JN] Предопределяем языковые строки.
     L_SetLanguageStrings();

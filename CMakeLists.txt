@@ -47,19 +47,11 @@ add_executable(loto-keno ${SOURCES} ${HEADERS})
 # Пути к заголовкам
 target_include_directories(loto-keno PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# Универсальный поиск SDL2 и SDL2_ttf
-find_package(SDL2 REQUIRED)
+# Универсальный поиск SDL3 и SDL3_ttf
+find_package(SDL3 REQUIRED)
+find_package(SDL3_ttf REQUIRED)
 
-# Явно ищем SDL2_ttf, это нужно для Linux и MinGW/MSYS
-find_path(SDL2_TTF_INCLUDE_DIR SDL_ttf.h PATH_SUFFIXES SDL2)
-find_library(SDL2_TTF_LIBRARY NAMES SDL2_ttf)
-
-if (NOT SDL2_TTF_INCLUDE_DIR OR NOT SDL2_TTF_LIBRARY)
-    message(FATAL_ERROR "SDL2_ttf library not found. Make sure it's installed and available in PATH.")
-endif()
-
-target_include_directories(loto-keno PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2_TTF_INCLUDE_DIR})
-target_link_libraries(loto-keno PRIVATE ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARY})
+target_link_libraries(loto-keno PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf)
 
 # Для Windows отключаем консольное окно
 if(WIN32)

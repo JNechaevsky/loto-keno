@@ -75,12 +75,13 @@ void R_InitColors (void)
 
 static void R_DrawText (const char *text, int x, int y, SDL_Color color)
 {
-    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, text, color);
+    SDL_Surface *surface = TTF_RenderText_Blended(font, text, 0, color);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_Rect dest = {x, y, surface->w, surface->h};
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+    SDL_FRect dest = { (float)x, (float)y, (float)surface->w, (float)surface->h };
 
-    SDL_RenderCopy(renderer, texture, NULL, &dest);
-    SDL_FreeSurface(surface);
+    SDL_RenderTexture(renderer, texture, NULL, &dest);
+    SDL_DestroySurface(surface);
     SDL_DestroyTexture(texture);
 }
 
@@ -91,17 +92,18 @@ static void R_DrawText (const char *text, int x, int y, SDL_Color color)
 
 static void R_DrawTextCentered (const char *text, int y, SDL_Color color)
 {
-    SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
+    SDL_Surface *surface = TTF_RenderText_Solid(font, text, 0, color);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 
     // [PN] Вычисляем начальную позицию, округляя до ближайшего кратного 16
     const int raw_x = (SCREENWIDTH - surface->w) / 2;
     const int aligned_x = (raw_x / 16) * 16;
 
-    SDL_Rect dest = { aligned_x, y, surface->w, surface->h };
+    SDL_FRect dest = { (float)aligned_x, (float)y, (float)surface->w, (float)surface->h };
 
-    SDL_RenderCopy(renderer, texture, NULL, &dest);
-    SDL_FreeSurface(surface);
+    SDL_RenderTexture(renderer, texture, NULL, &dest);
+    SDL_DestroySurface(surface);
     SDL_DestroyTexture(texture);
 }
 
@@ -121,12 +123,20 @@ static void R_DrawBox (int start_x, int start_y, int end_x, int end_y, SDL_Color
     for (int i = 0; i < frame_thickness; i++)
     {
         // Горизонтали: двигаем только по Y
-        SDL_RenderDrawLine(renderer, start_x, start_y + i, end_x, start_y + i); // верх
-        SDL_RenderDrawLine(renderer, start_x, end_y - i, end_x, end_y - i);     // низ
+        SDL_RenderLine(renderer,
+                       (float)start_x, (float)(start_y + i),
+                       (float)end_x, (float)(start_y + i)); // верх
+        SDL_RenderLine(renderer,
+                       (float)start_x, (float)(end_y - i),
+                       (float)end_x, (float)(end_y - i));   // низ
 
         // Вертикали: двигаем только по X
-        SDL_RenderDrawLine(renderer, start_x + i, start_y, start_x + i, end_y); // левая
-        SDL_RenderDrawLine(renderer, end_x - i, start_y, end_x - i, end_y);     // правая
+        SDL_RenderLine(renderer,
+                       (float)(start_x + i), (float)start_y,
+                       (float)(start_x + i), (float)end_y); // левая
+        SDL_RenderLine(renderer,
+                       (float)(end_x - i), (float)start_y,
+                       (float)(end_x - i), (float)end_y);   // правая
     }
 }
 
@@ -146,12 +156,20 @@ static void R_DrawDoubleBox (int start_x, int start_y, int end_x, int end_y, SDL
     for (int i = 0; i < frame_thickness; i++)
     {
         // Горизонтали
-        SDL_RenderDrawLine(renderer, start_x, start_y + i, end_x, start_y + i); // верх
-        SDL_RenderDrawLine(renderer, start_x, end_y - i, end_x, end_y - i);     // низ
+        SDL_RenderLine(renderer,
+                       (float)start_x, (float)(start_y + i),
+                       (float)end_x, (float)(start_y + i)); // верх
+        SDL_RenderLine(renderer,
+                       (float)start_x, (float)(end_y - i),
+                       (float)end_x, (float)(end_y - i));   // низ
 
         // Вертикали
-        SDL_RenderDrawLine(renderer, start_x + i, start_y, start_x + i, end_y); // левая
-        SDL_RenderDrawLine(renderer, end_x - i, start_y, end_x - i, end_y);     // правая
+        SDL_RenderLine(renderer,
+                       (float)(start_x + i), (float)start_y,
+                       (float)(start_x + i), (float)end_y); // левая
+        SDL_RenderLine(renderer,
+                       (float)(end_x - i), (float)start_y,
+                       (float)(end_x - i), (float)end_y);     // правая
     }
 
     // Вторая (внутренняя) рамка — на расстоянии frame_thickness*2 внутрь
@@ -162,11 +180,19 @@ static void R_DrawDoubleBox (int start_x, int start_y, int end_x, int end_y, SDL
 
     for (int i = 0; i < frame_thickness; i++)
     {
-        SDL_RenderDrawLine(renderer, inset_start_x, inset_start_y + i, inset_end_x, inset_start_y + i); // верх
-        SDL_RenderDrawLine(renderer, inset_start_x, inset_end_y - i, inset_end_x, inset_end_y - i);     // низ
+        SDL_RenderLine(renderer,
+                       (float)inset_start_x, (float)(inset_start_y + i),
+                       (float)inset_end_x, (float)(inset_start_y + i)); // верх
+        SDL_RenderLine(renderer,
+                       (float)inset_start_x, (float)(inset_end_y - i),
+                       (float)inset_end_x, (float)(inset_end_y - i));     // низ
 
-        SDL_RenderDrawLine(renderer, inset_start_x + i, inset_start_y, inset_start_x + i, inset_end_y); // левая
-        SDL_RenderDrawLine(renderer, inset_end_x - i, inset_start_y, inset_end_x - i, inset_end_y);     // правая
+        SDL_RenderLine(renderer,
+                       (float)(inset_start_x + i), (float)inset_start_y,
+                       (float)(inset_start_x + i), (float)inset_end_y); // левая
+        SDL_RenderLine(renderer,
+                       (float)(inset_end_x - i), (float)inset_start_y,
+                       (float)(inset_end_x - i), (float)inset_end_y);     // правая
     }
 }
 
@@ -195,10 +221,12 @@ static void R_DrawImage (const char *path, int x, int y)
     //     return;
     // }
 
-    SDL_Rect dst = { x, y, 0, 0 };
-    SDL_QueryTexture(texture, NULL, NULL, &dst.w, &dst.h); // Получить размеры
+    int tex_w = 0;
+    int tex_h = 0;
+    SDL_QueryTexture(texture, NULL, NULL, &tex_w, &tex_h); // Получить размеры
+    SDL_FRect dst = { (float)x, (float)y, (float)tex_w, (float)tex_h };
 
-    SDL_RenderCopy(renderer, texture, NULL, &dst);
+    SDL_RenderTexture(renderer, texture, NULL, &dst);
     SDL_DestroyTexture(texture);
 }
 */

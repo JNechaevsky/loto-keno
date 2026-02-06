@@ -29,8 +29,9 @@
 #endif
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
