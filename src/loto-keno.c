@@ -39,9 +39,10 @@
 
 Компиляция под Windows / Build Tools + VCPKG:
   Конфигурация:
-    make -B build_vs_64 -G "Ninja" -DCMAKE_BUILD_TYPE=Release \
-    DCMAKE_TOOLCHAIN_FILE=R:/VCPKG/scripts/buildsystems/vcpkg.cmake \
-    DCMAKE_PREFIX_PATH=R:/VCPKG/installed/x64-windows
+    cmake -S . -B build_vs_64 -G Ninja ^
+    -DCMAKE_BUILD_TYPE=Release ^
+    -DCMAKE_TOOLCHAIN_FILE=R:/VCPKG/scripts/buildsystems/vcpkg.cmake ^
+    -DVCPKG_TARGET_TRIPLET=x64-windows
   Компиляция:
     cmake --build build_vs_64 --config Release --parallel
 
@@ -51,6 +52,7 @@
 */
 
 
+#include <SDL3/SDL_main.h>
 #include "loto-keno.h"
 #include "icon.c"
 
@@ -209,7 +211,13 @@ static void HandleMouseEvents (SDL_Event *event)
     if (event->type == SDL_EVENT_MOUSE_WHEEL && gameStarted && !gameOver)
     {
         if (event->wheel.y != 0) // Увеличиваем или уменьшаем ставку
-            bet = SDL_clamp(bet + event->wheel.y, 1, score);
+        {
+            const int delta =
+                (event->wheel.y > 0.0f) ? 1 :
+                (event->wheel.y < 0.0f) ? -1 : 0;
+
+            bet = SDL_clamp(bet + delta, 1, score);
+        }
     }
 
     // [PN] Обработка нажатия ЛКМ
@@ -298,7 +306,9 @@ static void HandleKeyboardEvents (SDL_Event *event)
         // Перемещение курсора в центр экрана.
         int screen_width, screen_height;
         SDL_GetRenderOutputSize(renderer, &screen_width, &screen_height);
-        SDL_WarpMouseInWindow(window, screen_width / 2, screen_height / 2);
+        SDL_WarpMouseInWindow(window,
+                              (float)screen_width  * 0.5f,
+                              (float)screen_height * 0.5f);
         return;
     }
 
@@ -382,7 +392,7 @@ static void HandleWindowEvents (SDL_Event *event)
             if (!fullscreen)
             {
                 // [PN] Проверка, максимально ли окно в данный момент:
-                Uint32 flags = SDL_GetWindowFlags(window);
+                SDL_WindowFlags flags = SDL_GetWindowFlags(window);
                 if (flags & SDL_WINDOW_MAXIMIZED)
                 {
                     // [PN] Если окно максимизировано, пропорцию не трогаем,
