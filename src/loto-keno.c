@@ -1,7 +1,7 @@
 // MIT License
 // 
-// Copyright (c) 2025 Polina "Aura" N.
-// Copyright (c) 2025 Julia Nechaevskaya
+// Copyright (c) 2025-2026 Polina "Aura" N.
+// Copyright (c) 2025-2026 Julia Nechaevskaya
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -450,7 +450,6 @@ static void HandleWindowEvents (SDL_Event *event)
 static void D_KenoLoop (void)
 {
     SDL_Event event;
-    srand((unsigned int)time(NULL));
 
     int running = 1;
     while (running)
@@ -528,6 +527,8 @@ int main (int argc, char *argv[])
         SetConsoleCP(CP_UTF8);
     }
 #endif
+
+    srand((unsigned int)time(NULL));
 
     LoadConfig();
 
