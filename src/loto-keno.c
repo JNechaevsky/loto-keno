@@ -46,6 +46,18 @@
   Компиляция:
     cmake --build build_vs_64 --config Release --parallel
 
+Компиляция под Windows / Build Tools + VCPKG (статическая линковка), Win-64:
+  Установка пакетов в VCPKG:
+    vcpkg install sdl3:x64-windows-static sdl3-ttf:x64-windows-static
+  Конфигурация:
+    cmake -S . -B build_vs_64_static -G Ninja ^
+    -DCMAKE_BUILD_TYPE=Release ^
+    -DCMAKE_TOOLCHAIN_FILE=R:/VCPKG/scripts/buildsystems/vcpkg.cmake ^
+    -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
+    -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+  Компиляция:
+    cmake --build build_vs_64_static --config Release --parallel
+
 Компиляция под Linux:
   gcc -O3 -s loto-keno.c font.c lang.c loto-keno.o -o loto-keno.exe \
   -lSDL3main -lSDL3 -lSDL3_ttf
