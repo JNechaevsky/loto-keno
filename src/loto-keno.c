@@ -426,10 +426,9 @@ static void HandleWindowEvents (SDL_Event *event)
                 SDL_WindowFlags flags = SDL_GetWindowFlags(window);
                 if (flags & SDL_WINDOW_MAXIMIZED)
                 {
-                    // [PN] Если окно максимизировано, пропорцию не трогаем,
-                    // просто сохраняем размеры как есть:
-                    window_width = event->window.data1;
-                    window_height = event->window.data2;
+                    // [PN] ВАЖНО: не трогаем window_width/height!
+                    // Они должны хранить "оконный" размер до распаха.
+                    maximized = 1;
                 }
                 else
                 {
@@ -438,6 +437,8 @@ static void HandleWindowEvents (SDL_Event *event)
                     int new_height = event->window.data2;
                     const int delta_width = abs(new_width - window_width);
                     const int delta_height = abs(new_height - window_height);
+
+                    maximized = 0;
 
                     if (delta_width > delta_height) // [PN] изменили ширину
                     {
@@ -565,7 +566,7 @@ int main (int argc, char *argv[])
         SDL_SetWindowPosition(window, window_x, window_y);
     }
 
-    if (maximized)
+    if (!fullscreen && maximized)
     {
         SDL_MaximizeWindow(window);
     }
