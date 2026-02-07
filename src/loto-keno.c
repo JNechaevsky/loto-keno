@@ -103,6 +103,8 @@ bool gameStarted = false; // Игра начата?
 bool gameHelp = false;    // Отображается экран помощи?
 int  gameOver = 0;        // 0 = игра в процессе, 1 = game over, 2 = game victory
 
+uint32_t m_rand_seed = 1;  // Случайное зерно рандома
+
 // Цвета CGA для режима 320x200
 SDL_Color cga_color_0;  // Чёрный
 SDL_Color cga_color_1;  // Кияновый или зелёный
@@ -178,6 +180,15 @@ static void SaveConfig (void)
     #undef WRITE
 
     fclose(file);
+}
+
+// -----------------------------------------------------------------------------
+// Наш ГСЧ из International Doom.
+// -----------------------------------------------------------------------------
+
+int M_RealRandom(void)
+{
+    return (m_rand_seed = m_rand_seed * 214013u + 2531011u) >> 17;
 }
 
 // -----------------------------------------------------------------------------
@@ -528,7 +539,8 @@ int main (int argc, char *argv[])
     }
 #endif
 
-    srand((unsigned int)time(NULL));
+    // Инициализация рандома/ЛКМ
+    m_rand_seed = (uint32_t)time(NULL);
 
     LoadConfig();
 

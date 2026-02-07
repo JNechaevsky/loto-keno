@@ -35,7 +35,7 @@ const char *G_GetTitleQuote (int randomize)
     static int randomQuoteIndex = 0;
 
     if (randomize)
-        randomQuoteIndex = rand() % lang_title_quote_size;
+        randomQuoteIndex = M_RealRandom() % lang_title_quote_size;
 
     return lang_title_quote[randomQuoteIndex];
 }
@@ -65,7 +65,7 @@ void G_ResetGame (void)
 void G_StartNewRound (void)
 {
     // [PN] 1 к 10 шанс появления самурая в начале раунда
-    gameHna = (rand() % SAMURAI_CHANCE == 0);
+    gameHna = (M_RealRandom() % SAMURAI_CHANCE == 0);
     // [PN] Clear bet's choice
     choice = 0;
     // [JN] Increment round counter.
@@ -79,7 +79,7 @@ void G_StartNewRound (void)
 
 void G_DetermineResult (void)
 {
-    const int randomNumber = rand() % 100; // [PN] Число от 0 до 99
+    const int randomNumber = M_RealRandom() % 100; // [PN] Число от 0 до 99
     const int isEven = (randomNumber % 2 == 0);
     const int multiplier = gameHna ? 2 : 1;
     const int win = (choice == 1 && isEven) || (choice == 2 && !isEven);
@@ -92,7 +92,7 @@ void G_DetermineResult (void)
         {
             maxScore = score;
         }
-        resultQuoteIndex = rand() % lang_game_quote_win_size;
+        resultQuoteIndex = M_RealRandom() % lang_game_quote_win_size;
         resultIsWin = 1; // [PN] 💙 вот это важно!
     }
     else
@@ -103,7 +103,7 @@ void G_DetermineResult (void)
         {
             bet = score;
         }
-        resultQuoteIndex = rand() % lang_game_quote_loose_size;
+        resultQuoteIndex = M_RealRandom() % lang_game_quote_loose_size;
         resultIsWin = 0; // [PN] ❤️ и это тоже!
     }
     

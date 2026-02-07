@@ -158,3 +158,5 @@ extern bool gameHna;
 extern bool gameStarted;
 extern bool gameHelp;
 extern int  gameOver;
+
+extern int M_RealRandom(void);
