@@ -85,6 +85,7 @@ bool isHoveringRight; // Курсор мыши наведён на А-ОООО-�
 // Переменные для конфигурационного файла:
 int language = 0;     // Язык игры: 0 = English, 1 = Deutsch, 2 = Русский
 int fullscreen = 0;   // Полноэкранный режим
+int maximized = 0;    // Окно развёрнуто на полный экран
 int color_scheme = 0; // Цветовая схема CGA
 int window_x = SDL_WINDOWPOS_CENTERED; // Позиция окна по X
 int window_y = SDL_WINDOWPOS_CENTERED; // Позиция окна по Y
@@ -154,6 +155,7 @@ static void LoadConfig (void)
     #define READ_OR_DEFAULT(var, def) if (fscanf(file, #var " %d\n", &var) != 1) var = def
     READ_OR_DEFAULT(language, 0);
     READ_OR_DEFAULT(fullscreen, 0);
+    READ_OR_DEFAULT(maximized, 0);
     READ_OR_DEFAULT(color_scheme, 0);
     READ_OR_DEFAULT(window_x, SDL_WINDOWPOS_CENTERED);
     READ_OR_DEFAULT(window_y, SDL_WINDOWPOS_CENTERED);
@@ -172,6 +174,7 @@ static void SaveConfig (void)
     #define WRITE(var) fprintf(file, "%-18s %d\n", #var, var)
     WRITE(language);
     WRITE(fullscreen);
+    WRITE(maximized);
     WRITE(color_scheme);
     WRITE(window_x);
     WRITE(window_y);
@@ -397,9 +400,14 @@ static void HandleWindowEvents (SDL_Event *event)
             screen_visible = 0;
             break;
 
+        case SDL_EVENT_WINDOW_MAXIMIZED:
+            maximized = 1;
+            break;
+
         case SDL_EVENT_WINDOW_RESTORED:
         case SDL_EVENT_WINDOW_SHOWN:
             screen_visible = 1;
+            maximized = 0;
             break;
 
         case SDL_EVENT_WINDOW_MOVED:
@@ -555,6 +563,11 @@ int main (int argc, char *argv[])
     if (!fullscreen)
     {
         SDL_SetWindowPosition(window, window_x, window_y);
+    }
+
+    if (maximized)
+    {
+        SDL_MaximizeWindow(window);
     }
 
     // [JN] Присвоение иконки для окна.
