@@ -1,7 +1,7 @@
 IDI_APP_ICON ICON "../data/icon.ico"
 
 1 VERSIONINFO
-FILEVERSION 1,0
+FILEVERSION 1,1
 
 FILETYPE 1
 {
@@ -12,9 +12,9 @@ FILETYPE 1
             VALUE "FileDescription", "Loto Keno!"
             VALUE "InternalName", "@PACKAGE_TARNAME@"
             VALUE "CompanyName", "@PACKAGE_BUGREPORT@"
-            VALUE "LegalCopyright", "PN and JN"
+            VALUE "LegalCopyright", "PN+JN"
             VALUE "ProductName", "Loto Keno!"
-            VALUE "ProductVersion", "1.0"
+            VALUE "ProductVersion", "1.1"
         }
     }
     BLOCK "VarFileInfo"
