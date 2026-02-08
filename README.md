@@ -4,9 +4,9 @@
 
 ## About
 
-Somewhere around 2005, the idea for a simple "even-or-odd" guessing game was born. It wasn't really a concept or a design — more of an expressive outburst based on funny sounds like "bood-bood-bood!" and "aa-ooo-ooo!". Originally, it was imagined that shouting "hna!" (ヘンナ！) would summon an icon of a stern samurai… but in the current version, he’s mysteriously absent. As for how bets, samurais, and CGA palettes are all connected — I honestly have no idea. It just felt funny. Sometimes, creation is pure chaos. And absurdity.
+Somewhere around 2005, the idea for a simple "even-or-odd" guessing game was born. It wasn't really a concept or a design, more of an expressive outburst based on funny sounds like "bood-bood-bood!" and "aa-ooo-ooo!". Originally, it was imagined that shouting "hna!" (ヘンナ！) would summon an icon of a stern samurai… but in the current version, he’s mysteriously absent. As for how bets, samurais, and CGA palettes are all connected, I honestly have no idea. It just felt funny. Sometimes, creation is pure chaos. And absurdity.
 
-It wasn’t until March 2025 that this little joke began to take on flesh and logic, cross-platform compatibility, an actual idea — and even a working implementation. We threw in a whole bunch of quotes for win and loss events, to crank up the absurd humor factor.
+It wasn’t until March 2025 that this little joke began to take on flesh and logic, cross-platform compatibility, an actual idea, and even a working implementation. We threw in a whole bunch of quotes for win and loss events, to crank up the absurd humor factor.
 
 And so, the game emerged: 
 - Featuring ridiculous quotes.
@@ -16,11 +16,11 @@ And so, the game emerged:
 
 So, what's the goal of the game?
 
-We don’t know. But we’ll figure it out! At the very least, try not to lose all your points. Beyond that — it’s just a Zen mode to test your luck against the almighty Random Number Generator.
+We don’t know. But we’ll figure it out! At the very least, try not to lose all your points. Beyond that, it’s just a Zen mode to test your luck against the almighty Random Number Generator.
 
 ## How to Play
 
-Just... play. It doesn't explain itself. It barely makes sense. That's part of the fun.
+Just… play. It doesn't explain itself. It barely makes sense. That's part of the fun.
 
 Try not to lose all your points. Or do. Who's judging?
 
@@ -33,10 +33,9 @@ Try not to lose all your points. Or do. Who's judging?
 
 ## Download
 
-**Loto Keno, version 1.0 (April 6, 2025):**
-* Windows (64-bit): [loto-keno-1.0-win64.zip](https://github.com/JNechaevsky/loto-keno/releases/download/1.0/loto-keno-1.0-win64.zip)
-* Windows (32-bit): [loto-keno-1.0-win32.zip](https://github.com/JNechaevsky/loto-keno/releases/download/1.0/loto-keno-1.0-win32.zip)
-* Linux AppImage (64-bit): [loto-keno-1.0-linux64.AppImage](https://github.com/JNechaevsky/loto-keno/releases/download/1.0/loto-keno-1.0-linux64.AppImage)
+**Loto Keno, version 1.0 (February 8, 2026):**
+* Windows (64-bit): [loto-keno-1.1-win64.zip](https://github.com/JNechaevsky/loto-keno/releases/download/1.1/loto-keno-1.1-win64.zip)
+* Windows (32-bit): [loto-keno-1.1-win32.zip](https://github.com/JNechaevsky/loto-keno/releases/download/1.1/loto-keno-1.1-win32.zip)
 
 ## License
 The project is available under [The MIT License](https://opensource.org/license/mit).
