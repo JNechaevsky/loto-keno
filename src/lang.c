@@ -30,8 +30,8 @@
 //
 
 #define VERSION     "1.1"
-#define DATE_USA    "(02/07/2026)" // MM/DD/YYYY
-#define DATE_EUR    "(07.02.2026)" // DD.MM.YYYY
+#define DATE_USA    "(02/08/2026)" // MM/DD/YYYY
+#define DATE_EUR    "(08.02.2026)" // DD.MM.YYYY
 
 const char *lang_title_name;
 const char *lang_title_version;
