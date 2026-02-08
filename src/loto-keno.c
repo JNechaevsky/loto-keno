@@ -37,20 +37,20 @@
   Компиляция:
     cmake --build build
 
-Компиляция под Windows / Build Tools + VCPKG:
+Компиляция под Windows / Build Tools + VCPKG, Win-32:
   Конфигурация:
-    cmake -S . -B build_vs_64 -G Ninja ^
+    cmake -S . -B build_vs_32 -T v141_xp -A Win32 ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_TOOLCHAIN_FILE=R:/VCPKG/scripts/buildsystems/vcpkg.cmake ^
-    -DVCPKG_TARGET_TRIPLET=x64-windows
+    -DVCPKG_TARGET_TRIPLET=x86-windows
   Компиляция:
-    cmake --build build_vs_64 --config Release --parallel
+    cmake --build build_vs_32 --config Release --parallel
 
 Компиляция под Windows / Build Tools + VCPKG (статическая линковка), Win-64:
   Установка пакетов в VCPKG:
     vcpkg install sdl3:x64-windows-static sdl3-ttf:x64-windows-static
   Конфигурация:
-    cmake -S . -B build_vs_64_static -G Ninja ^
+    cmake -S . -B build_vs_64_static ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_TOOLCHAIN_FILE=R:/VCPKG/scripts/buildsystems/vcpkg.cmake ^
     -DVCPKG_TARGET_TRIPLET=x64-windows-static ^

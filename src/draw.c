@@ -78,7 +78,11 @@ static void R_DrawText (const char *text, int x, int y, SDL_Color color)
     SDL_Surface *surface = TTF_RenderText_Blended(font, text, 0, color);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-    SDL_FRect dest = { (float)x, (float)y, (float)surface->w, (float)surface->h };
+    SDL_FRect dest;
+    dest.x = (float)x;
+    dest.y = (float)y;
+    dest.w = (float)surface->w;
+    dest.h = (float)surface->h;
 
     SDL_RenderTexture(renderer, texture, NULL, &dest);
     SDL_DestroySurface(surface);
@@ -100,7 +104,11 @@ static void R_DrawTextCentered (const char *text, int y, SDL_Color color)
     const int raw_x = (SCREENWIDTH - surface->w) / 2;
     const int aligned_x = (raw_x / 16) * 16;
 
-    SDL_FRect dest = { (float)aligned_x, (float)y, (float)surface->w, (float)surface->h };
+    SDL_FRect dest;
+    dest.x = (float)aligned_x;
+    dest.y = (float)y;
+    dest.w = (float)surface->w;
+    dest.h = (float)surface->h;
 
     SDL_RenderTexture(renderer, texture, NULL, &dest);
     SDL_DestroySurface(surface);
